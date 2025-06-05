@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameStock - 现代化游戏股票交易平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/dashboard.css') }}" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="fas fa-chart-line me-2"></i>
+                <span class="fw-bold">GameStock</span>
+                <small class="badge bg-primary ms-2">v3.0</small>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showPage('market')">
+                            <i class="fas fa-chart-area me-1"></i>市场
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showPage('portfolio')">
+                            <i class="fas fa-briefcase me-1"></i>投资组合
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showPage('transactions')">
+                            <i class="fas fa-history me-1"></i>交易历史
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showPage('analysis')">
+                            <i class="fas fa-analytics me-1"></i>分析
+                        </a>
+                    </li>
+                </ul>
+                
+                <!-- 用户区域 -->
+                <div id="auth-section" class="d-none">
+                    <button class="btn btn-outline-light me-2" onclick="showLoginModal()">
+                        <i class="fas fa-sign-in-alt me-1"></i>登录
+                    </button>
+                    <button class="btn btn-primary" onclick="showRegisterModal()">
+                        <i class="fas fa-user-plus me-1"></i>注册
+                    </button>
+                </div>
+                
+                <div id="user-section" class="d-none">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i>
+                            <span id="user-name">用户</span>
+                            <span class="badge bg-success ms-1">$<span id="user-balance">0</span></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">账户管理</h6></li>
+                            <li><a class="dropdown-item" href="#" onclick="showRechargeModal()">
+                                <i class="fas fa-credit-card me-2 text-success"></i>充值账户
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showProfile()">
+                                <i class="fas fa-user-cog me-2"></i>个人资料
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showRechargeHistory()">
+                                <i class="fas fa-history me-2"></i>充值历史
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showAccountSettings()">
+                                <i class="fas fa-cog me-2"></i>账户设置
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#" onclick="logout()">
+                                <i class="fas fa-sign-out-alt me-2"></i>退出登录
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区域 -->
+    <div class="container-fluid mt-5 pt-3">
+        <!-- 登录提示横幅 -->
+        <div id="login-banner" class="alert alert-info alert-dismissible fade show d-none" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-info-circle fa-2x me-3"></i>
+                <div class="flex-grow-1">
+                    <h5 class="alert-heading mb-1">欢迎来到 GameStock!</h5>
+                    <p class="mb-0">登录后可以进行股票交易、查看投资组合和交易历史。</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary me-2" onclick="showLoginModal()">立即登录</button>
+                    <button class="btn btn-outline-primary" onclick="showRegisterModal()">注册账户</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 市场页面 -->
+        <div id="market-page" class="page active">
+            <!-- 市场概览 -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="mb-3">
+                        <i class="fas fa-chart-line text-primary me-2"></i>
+                        市场概览
+                    </h2>
+                </div>
+                <div class="col-xl-3 col-md-6 mb-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="avatar avatar-lg bg-primary-soft rounded">
+                                    <i class="fas fa-gamepad text-primary fa-2x"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="h6 mb-1">总股票数</div>
+                                <div class="h4 mb-0" id="total-stocks">-</div>
+                                <small class="text-muted">可交易游戏</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-md-6 mb-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="avatar avatar-lg bg-success-soft rounded">
+                                    <i class="fas fa-trophy text-success fa-2x"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="h6 mb-1">最高股价</div>
+                                <div class="h4 mb-0" id="highest-price">-</div>
+                                <small class="text-muted" id="highest-game">-</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-md-6 mb-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="avatar avatar-lg bg-info-soft rounded">
+                                    <i class="fas fa-calculator text-info fa-2x"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="h6 mb-1">平均股价</div>
+                                <div class="h4 mb-0" id="avg-price">-</div>
+                                <small class="text-muted">市场均价</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-md-6 mb-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="avatar avatar-lg bg-warning-soft rounded">
+                                    <i class="fas fa-sync-alt text-warning fa-2x"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="h6 mb-1">最后更新</div>
+                                <div class="h6 mb-0" id="last-update">-</div>
+                                <small class="text-muted">数据刷新时间</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 股票列表 -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card border-0 shadow">
+                        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3">
+                            <div>
+                                <h5 class="mb-0">
+                                    <i class="fas fa-list text-primary me-2"></i>
+                                    游戏股票市场
+                                </h5>
+                                <small class="text-muted">基于好评数的精确股价计算</small>
+                            </div>
+                            <div>
+                                <button class="btn btn-outline-secondary btn-sm me-2" onclick="refreshData()" title="刷新页面数据">
+                                    <i class="fas fa-refresh me-1"></i>刷新
+                                </button>
+                                <button class="btn btn-outline-warning btn-sm me-2" onclick="refreshAllSteamData()" title="从Steam API获取最新数据">
+                                    <i class="fas fa-cloud-download-alt me-1"></i>Steam数据
+                                </button>
+                                <button class="btn btn-primary btn-sm" onclick="showAddGameModal()">
+                                    <i class="fas fa-plus me-1"></i>添加游戏
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <!-- 搜索和筛选 -->
+                            <div class="p-3 border-bottom bg-light">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-search"></i>
+                                            </span>
+                                            <input type="text" class="form-control" id="search-input" 
+                                                   placeholder="搜索游戏名称..." onkeyup="filterStocks()">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex gap-2">
+                                            <select class="form-select" id="sort-select" onchange="sortStocks()">
+                                                <option value="price-desc">股价 (高到低)</option>
+                                                <option value="price-asc">股价 (低到高)</option>
+                                                <option value="name-asc">名称 (A-Z)</option>
+                                                <option value="reviews-desc">好评数 (多到少)</option>
+                                                <option value="rate-desc">好评率 (高到低)</option>
+                                            </select>
+                                            <button class="btn btn-outline-secondary" onclick="toggleViewMode()">
+                                                <i id="view-icon" class="fas fa-th-large"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 股票表格视图 -->
+                            <div id="table-view">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="border-0 ps-3">排名</th>
+                                                <th class="border-0">游戏</th>
+                                                <th class="border-0">好评数</th>
+                                                <th class="border-0">好评率</th>
+                                                <th class="border-0">股价</th>
+                                                <th class="border-0">数据状态</th>
+                                                <th class="border-0 text-center">操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="stocks-table">
+                                            <!-- 动态加载 -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- 卡片视图 -->
+                            <div id="card-view" class="d-none">
+                                <div class="p-3">
+                                    <div class="row" id="stocks-cards">
+                                        <!-- 动态加载 -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 投资组合页面 -->
+        <div id="portfolio-page" class="page d-none">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="mb-3">
+                        <i class="fas fa-briefcase text-primary me-2"></i>
+                        我的投资组合
+                    </h2>
+                </div>
+            </div>
+            
+            <!-- 投资组合概览 -->
+            <div class="row mb-4" id="portfolio-overview">
+                <!-- 动态加载 -->
+            </div>
+            
+            <!-- 持股详情 -->
+            <div class="card border-0 shadow">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie text-primary me-2"></i>
+                        持股详情
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="border-0 ps-3">游戏</th>
+                                    <th class="border-0">持股数量</th>
+                                    <th class="border-0">平均成本</th>
+                                    <th class="border-0">当前价格</th>
+                                    <th class="border-0">总价值</th>
+                                    <th class="border-0">盈亏</th>
+                                    <th class="border-0 text-center">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="portfolio-holdings">
+                                <!-- 动态加载 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 交易历史页面 -->
+        <div id="transactions-page" class="page d-none">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="mb-3">
+                        <i class="fas fa-history text-primary me-2"></i>
+                        交易历史
+                    </h2>
+                </div>
+            </div>
+            
+            <div class="card border-0 shadow">
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list-alt text-primary me-2"></i>
+                            交易记录
+                        </h5>
+                        <div>
+                            <select class="form-select form-select-sm" id="transaction-filter">
+                                <option value="all">全部交易</option>
+                                <option value="buy">买入记录</option>
+                                <option value="sell">卖出记录</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="border-0 ps-3">时间</th>
+                                    <th class="border-0">类型</th>
+                                    <th class="border-0">游戏</th>
+                                    <th class="border-0">数量</th>
+                                    <th class="border-0">价格</th>
+                                    <th class="border-0">总金额</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactions-list">
+                                <!-- 动态加载 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分析页面 -->
+        <div id="analysis-page" class="page d-none">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="mb-3">
+                        <i class="fas fa-analytics text-primary me-2"></i>
+                        市场分析
+                    </h2>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow mb-4">
+                        <div class="card-header bg-white border-0 py-3">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-bar text-primary me-2"></i>
+                                股价分布图
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="price-chart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow mb-4">
+                        <div class="card-header bg-white border-0 py-3">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle text-primary me-2"></i>
+                                公式说明
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <h6>当前股价公式</h6>
+                                <code>(log10(好评数))^1.3 × (好评率)^0.5 × 20</code>
+                            </div>
+                            <h6>优势特点：</h6>
+                            <ul class="small">
+                                <li>使用Steam API精确好评数</li>
+                                <li>避免销量估算误差</li>
+                                <li>合理平衡数量与质量</li>
+                                <li>股价范围: $69-$215</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框区域 -->
+    <!-- 登录模态框 -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title">
+                        <i class="fas fa-sign-in-alt text-primary me-2"></i>用户登录
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="login-form">
+                        <div class="mb-3">
+                            <label for="login-username" class="form-label">用户名或邮箱</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <input type="text" class="form-control" id="login-username" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="login-password" class="form-label">密码</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input type="password" class="form-control" id="login-password" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="submitLogin()">
+                        <i class="fas fa-sign-in-alt me-1"></i>登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-plus text-primary me-2"></i>用户注册
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="register-form">
+                        <div class="mb-3">
+                            <label for="register-username" class="form-label">用户名</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <input type="text" class="form-control" id="register-username" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-email" class="form-label">邮箱</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                <input type="email" class="form-control" id="register-email" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-password" class="form-label">密码</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input type="password" class="form-control" id="register-password" minlength="6" required>
+                            </div>
+                            <div class="form-text">密码长度至少6位</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-confirm" class="form-label">确认密码</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input type="password" class="form-control" id="register-confirm" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="submitRegister()">
+                        <i class="fas fa-user-plus me-1"></i>注册
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 增强的交易模态框 -->
+    <div class="modal fade" id="tradingModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title" id="trading-title">
+                        <i class="fas fa-exchange-alt text-primary me-2"></i>股票交易
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="trading-info" class="mb-4">
+                        <!-- 股票详细信息 -->
+                    </div>
+                    
+                    <form id="trading-form">
+                        <input type="hidden" id="trading-game-id">
+                        <input type="hidden" id="trading-type">
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="trading-shares" class="form-label">股数</label>
+                                    <div class="input-group">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="adjustShares(-1)">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <input type="number" class="form-control text-center" id="trading-shares" 
+                                               min="1" value="1" oninput="updateTradingTotal()">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="adjustShares(1)">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">单价</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="text" class="form-control" id="trading-price" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-light border">
+                            <div class="row">
+                                <div class="col-6">
+                                    <strong>交易总额:</strong>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <span class="h5 mb-0" id="trading-total">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>取消
+                    </button>
+                    <button type="button" class="btn btn-primary" id="trading-submit" onclick="submitTrade()">
+                        <i class="fas fa-check me-1"></i>确认交易
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加游戏模态框 -->
+    <div class="modal fade" id="addGameModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus text-primary me-2"></i>添加新游戏
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-game-form">
+                        <div class="mb-3">
+                            <label for="steam-id" class="form-label">Steam ID</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fab fa-steam"></i>
+                                </span>
+                                <input type="text" class="form-control" id="steam-id" 
+                                       placeholder="例如: 730" required>
+                            </div>
+                            <div class="form-text">
+                                可在Steam游戏页面URL中找到，如: store.steampowered.com/app/<strong>730</strong>/
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="game-name" class="form-label">游戏名称</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-gamepad"></i>
+                                </span>
+                                <input type="text" class="form-control" id="game-name" 
+                                       placeholder="例如: Counter-Strike 2" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="submitAddGame()">
+                        <i class="fas fa-plus me-1"></i>添加游戏
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 充值模态框 -->
+    <div class="modal fade" id="rechargeModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title">
+                        <i class="fas fa-credit-card text-success me-2"></i>账户充值
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-success border-0 mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-gift fa-2x me-3"></i>
+                            <div>
+                                <h6 class="mb-1">特惠价格</h6>
+                                <p class="mb-0">仅需 <strong>$4.99</strong> 即可获得 <strong>$100,000</strong> 虚拟资金！</p>
+                                <small class="text-muted">汇率：1 USD = 20,040 虚拟资金</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form id="recharge-form">
+                        <div class="mb-3">
+                            <label class="form-label">充值金额</label>
+                            <div class="card border-primary">
+                                <div class="card-body text-center py-3">
+                                    <div class="h4 text-primary mb-1">$4.99</div>
+                                    <div class="text-muted">唯一可选金额</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">将获得虚拟资金</label>
+                            <div class="card border-success">
+                                <div class="card-body text-center py-3">
+                                    <div class="h3 text-success mb-1">$100,000</div>
+                                    <div class="text-muted">虚拟游戏资金</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="payment-method" class="form-label">支付方式</label>
+                            <select class="form-select" id="payment-method">
+                                <option value="credit_card">信用卡</option>
+                                <option value="paypal">PayPal</option>
+                                <option value="apple_pay">Apple Pay</option>
+                                <option value="google_pay">Google Pay</option>
+                            </select>
+                        </div>
+                        
+                        <div class="alert alert-warning border-0">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-exclamation-triangle me-2 mt-1"></i>
+                                <div>
+                                    <strong>重要提示：</strong>
+                                    <ul class="mb-0 mt-1">
+                                        <li>这是虚拟货币，仅用于游戏内交易</li>
+                                        <li>虚拟资金不可兑换为真实货币</li>
+                                        <li>支付处理为模拟演示（无实际扣费）</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success" onclick="submitRecharge()">
+                        <i class="fas fa-credit-card me-1"></i>确认充值 $4.99
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 充值历史模态框 -->
+    <div class="modal fade" id="rechargeHistoryModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title">
+                        <i class="fas fa-history text-info me-2"></i>充值历史
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="recharge-history-content">
+                        <!-- 动态加载充值历史 -->
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">加载中...</span>
+                            </div>
+                            <div class="mt-2">正在加载充值历史...</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 通知 -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+        <div id="notification-toast" class="toast" role="alert">
+            <div class="toast-header">
+                <i class="fas fa-info-circle text-primary me-2"></i>
+                <strong class="me-auto">GameStock</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toast-message">
+                <!-- 动态消息 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载中覆盖层 -->
+    <div id="loading-overlay" class="loading-overlay d-none">
+        <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">加载中...</span>
+            </div>
+            <div class="mt-2">正在加载...</div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html> 

@@ -1,0 +1,192 @@
+{
+  "730": {
+    "name": "Counter-Strike 2",
+    "icon_results": {
+      "胶囊图 (231x87)": {
+        "status": "✅ 可用",
+        "url": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/730/capsule_231x87.jpg",
+        "size": "9528",
+        "type": "image/jpeg"
+      },
+      "小胶囊图 (184x69)": {
+        "status": "✅ 可用",
+        "url": "https://steamcdn-a.akamaihd.net/steam/apps/730/capsule_184x69.jpg",
+        "size": "6568",
+        "type": "image/jpeg"
+      },
+      "头图": {
+        "status": "✅ 可用",
+        "url": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/730/header.jpg",
+        "size": "34296",
+        "type": "image/jpeg"
+      },
+      "库存图": {
+        "status": "✅ 可用",
+        "url": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/730/library_600x900.jpg",
+        "size": "38081",
+        "type": "image/jpeg"
+      },
+      "Steam社区图标": {
+        "status": "❌ HTTP 404",
+        "url": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/730/icon_32.jpg"
+      }
+    }
+  },
+  "2358720": {
+    "name": "Black Myth: Wukong",
+    "icon_results": {
+      "胶囊图 (231x87)": {
+        "status": "✅ 可用",
+        "url": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/2358720/capsule_231x87.jpg",
+        "size": "9349",
+        "type": "image/jpeg"
+      },
+      "小胶囊图 (184x69)": {
+        "status": "✅ 可用",
+        "url": "https://steamcdn-a.akamaihd.net/steam/apps/2358720/capsule_184x69.jpg",
+        "size": "6295",
+        "type": "image/jpeg"
+      },
+      "头图": {
+        "status": "✅ 可用",
+        "url": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/2358720/header.jpg",
+        "size": "33808",
+        "type": "image/jpeg"
+      },
+      "库存图": {
+        "status": "✅ 可用",
+        "url": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/2358720/library_600x900.jpg",
+        "size": "52678",
+        "type": "image/jpeg"
+      },
+      "Steam社区图标": {
+        "status": "❌ HTTP 404",
+        "url": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/2358720/icon_32.jpg"
+      }
+    }
+  },
+  "570": {
+    "name": "Dota 2",
+    "icon_results": {
+      "胶囊图 (231x87)": {
+        "status": "✅ 可用",
+        "url": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/570/capsule_231x87.jpg",
+        "size": "4415",
+        "type": "image/jpeg"
+      },
+      "小胶囊图 (184x69)": {
+        "status": "✅ 可用",
+        "url": "https://steamcdn-a.akamaihd.net/steam/apps/570/capsule_184x69.jpg",
+        "size": "3634",
+        "type": "image/jpeg"
+      },
+      "头图": {
+        "status": "✅ 可用",
+        "url": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/570/header.jpg",
+        "size": "37878",
+        "type": "image/jpeg"
+      },
+      "库存图": {
+        "status": "✅ 可用",
+        "url": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/570/library_600x900.jpg",
+        "size": "46024",
+        "type": "image/jpeg"
+      },
+      "Steam社区图标": {
+        "status": "❌ 错误: HTTPSConnectionPool(host='steamcdn-a.akamaihd.net', port=443): Read timed out. (read timeout=5)",
+        "url": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/570/icon_32.jpg"
+      }
+    }
+  },
+  "440": {
+    "name": "Team Fortress 2",
+    "icon_results": {
+      "胶囊图 (231x87)": {
+        "status": "✅ 可用",
+        "url": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/440/capsule_231x87.jpg",
+        "size": "51956",
+        "type": "image/jpeg"
+      },
+      "小胶囊图 (184x69)": {
+        "status": "✅ 可用",
+        "url": "https://steamcdn-a.akamaihd.net/steam/apps/440/capsule_184x69.jpg",
+        "size": "29808",
+        "type": "image/jpeg"
+      },
+      "头图": {
+        "status": "✅ 可用",
+        "url": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/440/header.jpg",
+        "size": "55689",
+        "type": "image/jpeg"
+      },
+      "库存图": {
+        "status": "✅ 可用",
+        "url": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/440/library_600x900.jpg",
+        "size": "57351",
+        "type": "image/jpeg"
+      },
+      "Steam社区图标": {
+        "status": "❌ HTTP 404",
+        "url": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/440/icon_32.jpg"
+      }
+    }
+  },
+  "271590": {
+    "name": "Grand Theft Auto V Legacy",
+    "icon_results": {
+      "胶囊图 (231x87)": {
+        "status": "✅ 可用",
+        "url": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/271590/capsule_231x87.jpg",
+        "size": "13320",
+        "type": "image/jpeg"
+      },
+      "小胶囊图 (184x69)": {
+        "status": "✅ 可用",
+        "url": "https://steamcdn-a.akamaihd.net/steam/apps/271590/capsule_184x69.jpg",
+        "size": "9379",
+        "type": "image/jpeg"
+      },
+      "头图": {
+        "status": "✅ 可用",
+        "url": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/271590/header.jpg",
+        "size": "63566",
+        "type": "image/jpeg"
+      },
+      "库存图": {
+        "status": "✅ 可用",
+        "url": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900.jpg",
+        "size": "81961",
+        "type": "image/jpeg"
+      },
+      "Steam社区图标": {
+        "status": "❌ HTTP 404",
+        "url": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/271590/icon_32.jpg"
+      }
+    }
+  },
+  "999999999": {
+    "name": "不存在的游戏 (测试错误处理)",
+    "icon_results": {
+      "胶囊图 (231x87)": {
+        "status": "❌ HTTP 404",
+        "url": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/999999999/capsule_231x87.jpg"
+      },
+      "小胶囊图 (184x69)": {
+        "status": "❌ HTTP 404",
+        "url": "https://steamcdn-a.akamaihd.net/steam/apps/999999999/capsule_184x69.jpg"
+      },
+      "头图": {
+        "status": "❌ HTTP 404",
+        "url": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/999999999/header.jpg"
+      },
+      "库存图": {
+        "status": "❌ HTTP 404",
+        "url": "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/999999999/library_600x900.jpg"
+      },
+      "Steam社区图标": {
+        "status": "❌ HTTP 404",
+        "url": "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/999999999/icon_32.jpg"
+      }
+    }
+  }
+}

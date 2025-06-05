@@ -1,0 +1,503 @@
+/* GameStock Dashboard 样式 */
+
+/* 全局样式 */
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --info-color: #0dcaf0;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --border-radius: 0.5rem;
+    --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --box-shadow-lg: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    background-color: #f8f9fa;
+}
+
+/* 导航栏样式 */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.navbar-nav .nav-link {
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    margin: 0 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-nav .nav-link.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff !important;
+}
+
+/* 主内容区域 */
+.container-fluid {
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 卡片样式 */
+.card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: var(--box-shadow-lg);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    background-color: transparent;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    font-weight: 600;
+}
+
+/* 头像样式 */
+.avatar {
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.avatar.avatar-lg {
+    width: 4rem;
+    height: 4rem;
+}
+
+.bg-primary-soft {
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+.bg-success-soft {
+    background-color: rgba(25, 135, 84, 0.1);
+}
+
+.bg-info-soft {
+    background-color: rgba(13, 202, 240, 0.1);
+}
+
+.bg-warning-soft {
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+.bg-danger-soft {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* 按钮样式 */
+.btn {
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+}
+
+.btn-group .btn {
+    margin: 0;
+}
+
+/* 表格样式 */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--secondary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1rem 0.75rem;
+}
+
+.table td {
+    padding: 1rem 0.75rem;
+    vertical-align: middle;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* 股票列表特殊样式 */
+.stock-row {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.stock-row:hover {
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.stock-rank {
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary-color), #0b5ed7);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+.stock-name {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+.stock-id {
+    font-size: 0.75rem;
+    color: var(--secondary-color);
+    background-color: var(--light-color);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    display: inline-block;
+    margin-top: 0.25rem;
+}
+
+.stock-price {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--success-color);
+}
+
+.stock-change {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.stock-change.positive {
+    color: var(--success-color);
+}
+
+.stock-change.negative {
+    color: var(--danger-color);
+}
+
+/* 卡片视图样式 */
+.stock-card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.stock-card:hover {
+    box-shadow: var(--box-shadow-lg);
+    transform: translateY(-4px);
+}
+
+.stock-card .card-body {
+    padding: 1.5rem;
+}
+
+.stock-card .stock-rank {
+    position: absolute;
+    top: -0.5rem;
+    right: -0.5rem;
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.75rem;
+}
+
+/* 模态框样式 */
+.modal-content {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-lg);
+}
+
+.modal-header {
+    padding: 1.5rem 1.5rem 0;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 0 1.5rem 1.5rem;
+}
+
+/* 表单样式 */
+.form-control {
+    border-radius: var(--border-radius);
+    border: 1px solid #e0e0e0;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.input-group-text {
+    background-color: var(--light-color);
+    border: 1px solid #e0e0e0;
+    border-radius: var(--border-radius);
+}
+
+/* 徽章样式 */
+.badge {
+    border-radius: 0.375rem;
+    font-weight: 500;
+    padding: 0.375rem 0.75rem;
+}
+
+/* 进度条样式 */
+.progress {
+    height: 0.5rem;
+    border-radius: 0.25rem;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+    border-radius: 0.25rem;
+}
+
+/* 盈亏指示器 */
+.profit-indicator {
+    display: inline-flex;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.profit-indicator.positive {
+    color: var(--success-color);
+}
+
+.profit-indicator.negative {
+    color: var(--danger-color);
+}
+
+.profit-indicator i {
+    margin-right: 0.25rem;
+}
+
+/* 加载动画 */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    text-align: center;
+    color: var(--primary-color);
+}
+
+/* 动画效果 */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .stock-rank {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .avatar {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+    
+    .avatar.avatar-lg {
+        width: 3rem;
+        height: 3rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .navbar-brand {
+        font-size: 1.25rem;
+    }
+    
+    .h4 {
+        font-size: 1.25rem;
+    }
+    
+    .modal-dialog {
+        margin: 1rem;
+    }
+    
+    .stock-card .card-body {
+        padding: 1rem;
+    }
+}
+
+/* Toast 通知样式 */
+.toast {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-lg);
+}
+
+.toast-header {
+    background-color: var(--light-color);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* 特殊效果 */
+.glass-effect {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, var(--primary-color), #0b5ed7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--light-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--dark-color);
+}
+
+/* 图表容器样式 */
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin: 1rem 0;
+}
+
+#price-chart {
+    max-height: 300px;
+}
+
+/* 搜索和筛选区域 */
+.filter-section {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* 统计卡片特殊样式 */
+.stats-card {
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.1), rgba(13, 110, 253, 0.05));
+    border-left: 4px solid var(--primary-color);
+}
+
+.stats-card.success {
+    background: linear-gradient(135deg, rgba(25, 135, 84, 0.1), rgba(25, 135, 84, 0.05));
+    border-left-color: var(--success-color);
+}
+
+.stats-card.info {
+    background: linear-gradient(135deg, rgba(13, 202, 240, 0.1), rgba(13, 202, 240, 0.05));
+    border-left-color: var(--info-color);
+}
+
+.stats-card.warning {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.05));
+    border-left-color: var(--warning-color);
+} 

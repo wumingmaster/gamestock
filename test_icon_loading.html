@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏图标加载测试 - GameStock</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .test-icon {
+            border: 2px solid #ddd;
+            margin: 10px;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+        .test-icon.loading {
+            border-color: #007bff;
+        }
+        .test-icon.success {
+            border-color: #28a745;
+        }
+        .test-icon.error {
+            border-color: #dc3545;
+        }
+        .test-card {
+            margin-bottom: 20px;
+        }
+        .status-indicator {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">🎮 GameStock 图标加载测试</h1>
+        <p class="lead">基于SteamKit思路的多重后备图标加载策略测试</p>
+        
+        <div class="row" id="test-container">
+            <!-- 测试用例将在这里动态生成 -->
+        </div>
+        
+        <div class="mt-4">
+            <h3>测试日志</h3>
+            <div id="test-log" class="border p-3" style="height: 300px; overflow-y: auto; background-color: #f8f9fa; font-family: monospace; font-size: 14px;"></div>
+        </div>
+    </div>
+
+    <script>
+        // 测试游戏数据
+        const testGames = [
+            {
+                steam_id: "730",
+                name: "Counter-Strike 2",
+                name_zh: "Counter-Strike 2",
+                icon_url: "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/730/capsule_231x87.jpg"
+            },
+            {
+                steam_id: "2358720",
+                name: "Black Myth: Wukong",
+                name_zh: "黑神话：悟空",
+                icon_url: "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/2358720/capsule_231x87.jpg"
+            },
+            {
+                steam_id: "570",
+                name: "Dota 2",
+                name_zh: "Dota 2",
+                icon_url: "https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/570/capsule_231x87.jpg"
+            },
+            {
+                steam_id: "999999999",
+                name: "Non-existent Game",
+                name_zh: "不存在的游戏",
+                icon_url: "https://invalid-url.com/invalid.jpg"
+            }
+        ];
+
+        // 日志函数
+        function log(message) {
+            const logElement = document.getElementById('test-log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        // 智能图标加载函数 - 与dashboard.js相同
+        function loadGameIcon(imgElement, game, fallbackAttempt = 0) {
+            const steamId = game.steam_id;
+            const fallbackUrls = [
+                game.icon_url || game.capsule_url,  // 主要图标URL
+                `https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/${steamId}/capsule_231x87.jpg`,  // 胶囊图
+                `https://steamcdn-a.akamaihd.net/steam/apps/${steamId}/capsule_184x69.jpg`,  // 小胶囊图
+                `https://steamcdn-a.akamaihd.net/steam/apps/${steamId}/header.jpg`,  // 头图
+                '/static/images/game-placeholder.svg'  // 最终占位符
+            ];
+            
+            if (fallbackAttempt < fallbackUrls.length - 1) {
+                const currentUrl = fallbackUrls[fallbackAttempt];
+                
+                imgElement.className = 'test-icon loading';
+                log(`🔄 尝试加载图标 (第${fallbackAttempt + 1}次): ${game.name_zh || game.name} - ${currentUrl}`);
+                
+                // 创建新图片对象测试URL
+                const testImg = new Image();
+                testImg.onload = function() {
+                    imgElement.src = currentUrl;
+                    imgElement.className = 'test-icon success';
+                    if (fallbackAttempt > 0) {
+                        log(`✅ 图标加载成功 (第${fallbackAttempt + 1}次尝试): ${game.name_zh || game.name} - ${currentUrl}`);
+                    } else {
+                        log(`✅ 图标加载成功: ${game.name_zh || game.name} - ${currentUrl}`);
+                    }
+                };
+                testImg.onerror = function() {
+                    log(`❌ 图标加载失败 (第${fallbackAttempt + 1}次尝试): ${game.name_zh || game.name} - ${currentUrl}`);
+                    loadGameIcon(imgElement, game, fallbackAttempt + 1);
+                };
+                testImg.src = currentUrl;
+            } else {
+                // 所有URL都失败，使用SVG占位符
+                imgElement.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDIwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNGOEY5RkEiIHN0cm9rZT0iI0RFRTJFNiIgc3Ryb2tlLXdpZHRoPSIyIi8+PHRleHQgeD0iMTAwIiB5PSI1NSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNjc4MyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+R2FtZSBJY29uPC90ZXh0Pjwvc3ZnPg==';
+                imgElement.className = 'test-icon error';
+                log(`🔄 所有图标URL失败，使用占位符: ${game.name_zh || game.name}`);
+            }
+        }
+
+        // 生成测试卡片
+        function generateTestCards() {
+            const container = document.getElementById('test-container');
+            
+            testGames.forEach((game, index) => {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-lg-4';
+                
+                col.innerHTML = `
+                    <div class="card test-card">
+                        <div class="card-body text-center">
+                            <h6 class="card-title">${game.name_zh || game.name}</h6>
+                            <p class="text-muted">Steam ID: ${game.steam_id}</p>
+                            <img id="test-img-${index}" 
+                                 alt="${game.name}" 
+                                 class="test-icon loading"
+                                 style="width: 200px; height: 100px; object-fit: cover;">
+                            <div class="status-indicator" id="status-${index}">
+                                正在加载...
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(col);
+            });
+        }
+
+        // 开始测试
+        function startTest() {
+            log('🚀 开始GameStock图标加载测试');
+            log('📋 测试策略: 多重后备URL加载');
+            log('🔗 后备URL顺序: 1.原始URL → 2.胶囊图 → 3.小胶囊图 → 4.头图 → 5.占位符');
+            log('─────────────────────────────────');
+            
+            testGames.forEach((game, index) => {
+                const imgElement = document.getElementById(`test-img-${index}`);
+                loadGameIcon(imgElement, game);
+            });
+        }
+
+        // 页面加载完成后开始测试
+        document.addEventListener('DOMContentLoaded', function() {
+            generateTestCards();
+            setTimeout(startTest, 500);
+        });
+    </script>
+</body>
+</html> 

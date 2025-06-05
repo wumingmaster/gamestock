@@ -1,0 +1,130 @@
+/* GameStock 自定义样式 */
+
+body {
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.card {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+    font-weight: 600;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+.btn {
+    border-radius: 6px;
+}
+
+.price-positive {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.price-negative {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.price-neutral {
+    color: #6c757d;
+    font-weight: bold;
+}
+
+.stock-row:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+.review-rate {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 0.375rem;
+}
+
+.review-excellent {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.review-good {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.review-average {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.review-poor {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: text-bottom;
+    border: 0.125em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border 0.75s linear infinite;
+}
+
+@keyframes spinner-border {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .card-body {
+        padding: 1rem 0.5rem;
+    }
+    
+    .container {
+        padding: 0 10px;
+    }
+} 

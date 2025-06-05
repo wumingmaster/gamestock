@@ -1,0 +1,68 @@
+{
+  "base_url": "http://localhost:5001",
+  "endpoints": {
+    "games": {
+      "url": "/api/games",
+      "method": "GET",
+      "description": "获取所有游戏列表",
+      "response_fields": [
+        "id",
+        "name",
+        "steam_id",
+        "current_price",
+        "positive_reviews",
+        "review_rate",
+        "sales_count"
+      ]
+    },
+    "register": {
+      "url": "/api/auth/register",
+      "method": "POST",
+      "description": "用户注册",
+      "required_fields": [
+        "username",
+        "email",
+        "password"
+      ]
+    },
+    "login": {
+      "url": "/api/auth/login",
+      "method": "POST",
+      "description": "用户登录",
+      "required_fields": [
+        "username",
+        "password"
+      ]
+    },
+    "portfolio": {
+      "url": "/api/trading/portfolio",
+      "method": "GET",
+      "description": "获取投资组合",
+      "auth_required": true
+    },
+    "buy_stock": {
+      "url": "/api/trading/buy",
+      "method": "POST",
+      "description": "买入股票",
+      "required_fields": [
+        "game_id",
+        "quantity"
+      ],
+      "auth_required": true
+    },
+    "sell_stock": {
+      "url": "/api/trading/sell",
+      "method": "POST",
+      "description": "卖出股票",
+      "required_fields": [
+        "game_id",
+        "quantity"
+      ],
+      "auth_required": true
+    }
+  },
+  "authentication": {
+    "type": "session_cookies",
+    "note": "iOS版本将升级为JWT Token认证"
+  }
+}

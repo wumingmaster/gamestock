@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameStock - Steam游戏股票交易模拟器</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                🎮 GameStock
+            </a>
+            <div class="navbar-nav ms-auto">
+                <!-- 未登录状态 -->
+                <div id="auth-section" class="d-none">
+                    <button class="btn btn-outline-light me-2" onclick="showLoginModal()">登录</button>
+                    <button class="btn btn-primary" onclick="showRegisterModal()">注册</button>
+                </div>
+                <!-- 已登录状态 -->
+                <div id="user-section" class="d-none">
+                    <span class="navbar-text me-3">
+                        欢迎, <span id="user-name">-</span> | 余额: $<span id="user-balance">0.00</span>
+                    </span>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
+                            用户菜单
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="showPortfolio()">我的投资组合</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showTransactions()">交易历史</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="logout()">退出登录</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- 登录提示 -->
+        <div id="login-prompt" class="alert alert-info d-none">
+            <h5>🔐 请先登录以使用交易功能</h5>
+            <p>您可以查看股票信息，但需要登录后才能进行买卖交易。</p>
+            <button class="btn btn-primary me-2" onclick="showLoginModal()">立即登录</button>
+            <button class="btn btn-outline-primary" onclick="showRegisterModal()">注册新账户</button>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="mb-4">🏆 游戏股票市场</h1>
+                
+                <!-- 市场概览 -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">📊 总股票数</h5>
+                                <h3 id="total-stocks">-</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">💰 最高股价</h5>
+                                <h3 id="highest-price">-</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">📈 平均股价</h5>
+                                <h3 id="avg-price">-</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">🔄 最后更新</h5>
+                                <h6 id="last-update">-</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 股票列表 -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">🎯 游戏股票列表</h5>
+                        <button class="btn btn-primary btn-sm" onclick="refreshData()">
+                            🔄 刷新数据
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>游戏名称</th>
+                                        <th>Steam ID</th>
+                                        <th>销量</th>
+                                        <th>好评率</th>
+                                        <th>股票价格</th>
+                                        <th>最后更新</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="games-table">
+                                    <!-- 动态加载 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 添加游戏 -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">➕ 添加新游戏</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="add-game-form">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="steam-id" class="form-label">Steam ID</label>
+                                        <input type="text" class="form-control" id="steam-id" placeholder="例如: 730" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="game-name" class="form-label">游戏名称</label>
+                                        <input type="text" class="form-control" id="game-name" placeholder="例如: Counter-Strike 2" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success">添加游戏</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 登录模态框 -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">🔐 用户登录</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="login-form">
+                        <div class="mb-3">
+                            <label for="login-username" class="form-label">用户名/邮箱</label>
+                            <input type="text" class="form-control" id="login-username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="login-password" class="form-label">密码</label>
+                            <input type="password" class="form-control" id="login-password" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="submitLogin()">登录</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">📝 用户注册</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="register-form">
+                        <div class="mb-3">
+                            <label for="register-username" class="form-label">用户名</label>
+                            <input type="text" class="form-control" id="register-username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-email" class="form-label">邮箱</label>
+                            <input type="email" class="form-control" id="register-email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-password" class="form-label">密码</label>
+                            <input type="password" class="form-control" id="register-password" minlength="6" required>
+                            <div class="form-text">密码长度至少6位</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="register-confirm" class="form-label">确认密码</label>
+                            <input type="password" class="form-control" id="register-confirm" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="submitRegister()">注册</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 交易模态框 -->
+    <div class="modal fade" id="tradingModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="trading-title">💰 股票交易</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="trading-info" class="mb-3">
+                        <!-- 股票信息显示 -->
+                    </div>
+                    <form id="trading-form">
+                        <input type="hidden" id="trading-game-id">
+                        <input type="hidden" id="trading-type">
+                        <div class="mb-3">
+                            <label for="trading-shares" class="form-label">股数</label>
+                            <input type="number" class="form-control" id="trading-shares" min="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>当前价格:</span>
+                                <span id="trading-price">$0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span><strong>总金额:</strong></span>
+                                <span id="trading-total"><strong>$0.00</strong></span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="trading-submit" onclick="submitTrade()">确认交易</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 投资组合模态框 -->
+    <div class="modal fade" id="portfolioModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">📊 我的投资组合</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="portfolio-summary" class="mb-4">
+                        <!-- 投资组合摘要 -->
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>游戏名称</th>
+                                    <th>持股数量</th>
+                                    <th>平均成本</th>
+                                    <th>当前价格</th>
+                                    <th>总价值</th>
+                                    <th>盈亏</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="portfolio-table">
+                                <!-- 动态加载 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 通知 -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="notification-toast" class="toast" role="alert">
+            <div class="toast-header">
+                <strong class="me-auto">GameStock</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="toast-message">
+                <!-- 动态消息 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html> 
