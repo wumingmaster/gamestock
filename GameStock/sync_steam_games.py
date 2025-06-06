@@ -8,15 +8,22 @@ STEAM_APP_LIST_URL = 'https://api.steampowered.com/ISteamApps/GetAppList/v2/'
 BATCH_SIZE = 1000
 
 def fetch_steam_applist():
-    resp = requests.get(STEAM_APP_LIST_URL, timeout=30)
-    resp.raise_for_status()
-    data = resp.json()
-    return data['applist']['apps']
+    try:
+        resp = requests.get(STEAM_APP_LIST_URL, timeout=120)
+        resp.raise_for_status()
+        data = resp.json()
+        return data['applist']['apps']
+    except Exception as e:
+        print(f"拉取Steam全量游戏列表失败: {e}")
+        return []
 
 def sync_games():
     print("开始拉取Steam全量游戏列表...")
     start_time = time.time()
     applist = fetch_steam_applist()
+    if not applist:
+        print("未获取到任何游戏数据，请检查网络或稍后重试。")
+        return
     total = len(applist)
     print(f"共获取到 {total} 个游戏，开始写入数据库...")
 
