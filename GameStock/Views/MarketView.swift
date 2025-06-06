@@ -209,17 +209,25 @@ struct MarketView: View {
                 List(viewModel.filteredGames.indices, id: \.self) { index in
                     let game = viewModel.filteredGames[index]
                     let percent = viewModel.priceChangePercent(for: game)
-                    GameRowView(game: game, rank: index + 1, percent: percent) {
-                        print("\n=== 📱 市场界面股票点击 ===")
-                        print("🎮 点击游戏: \(game.name)")
-                        print("💵 当前价格: $\(game.currentPrice)")
-                        print("🔗 iconUrl: \(game.iconUrl ?? "无")")
-                        print("🎯 gameIconUrl: \(game.gameIconUrl)")
-                        print("📊 排名: \(index + 1)")
-                        print("=============================")
-                        selectedGame = game
-                        showingGameDetail = true
-                    }
+                    let isFollowed = viewModel.followedGameIds.contains(game.id)
+                    GameRowView(
+                        game: game,
+                        rank: index + 1,
+                        percent: percent,
+                        isFollowed: isFollowed,
+                        onToggleFollow: { viewModel.toggleFollow(game: game) },
+                        onTap: {
+                            print("\n=== 📱 市场界面股票点击 ===")
+                            print("🎮 点击游戏: \(game.name)")
+                            print("💵 当前价格: $\(game.currentPrice)")
+                            print("🔗 iconUrl: \(game.iconUrl ?? "无")")
+                            print("🎯 gameIconUrl: \(game.gameIconUrl)")
+                            print("📊 排名: \(index + 1)")
+                            print("=============================")
+                            selectedGame = game
+                            showingGameDetail = true
+                        }
+                    )
                     .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                     .listRowSeparator(.hidden)
                     .background(Color(.systemBackground))
@@ -269,69 +277,64 @@ struct GameRowView: View {
     let game: Game
     let rank: Int
     let percent: Double?
+    let isFollowed: Bool
+    let onToggleFollow: () -> Void
     let onTap: () -> Void
     
     var body: some View {
-        Button(action: onTap) {
-            HStack(spacing: 12) {
-                // 紧凑的排名徽章
-                RankBadge(rank: rank)
-                
-                // 游戏图标 - 智能加载
-                GameIconView.small(game: game)
-                
-                VStack(alignment: .leading, spacing: 3) {
-                    // 游戏名称 - iPhone优化字体
-                    Text(game.name)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.primary)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
-                    
-                    // 好评信息行
-                    HStack(spacing: 6) {
-                        Image(systemName: "star.fill")
-                            .foregroundColor(.orange)
-                            .font(.system(size: 11))
-                        Text(game.reviewRatePercentage)
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.secondary)
-                        
-                        Text("·")
-                            .font(.system(size: 10))
-                            .foregroundColor(.secondary)
-                        
-                        Text("\(formatNumber(game.positiveReviews))好评")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                    }
-                }
-                
-                Spacer(minLength: 8)
-                
-                VStack(alignment: .trailing, spacing: 2) {
-                    // 股价 - iPhone优化大小
-                    Text(game.formattedPrice)
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                        .foregroundColor(game.priceChangeColor)
-                    
-                    // 涨跌幅
-                    Text(percent != nil ? String(format: "%@%.2f%%", percent! >= 0 ? "+" : "", percent!) : "--")
+        HStack(spacing: 10) {
+            // 图标
+            GameIconView.small(game: game)
+                .frame(width: 40, height: 40)
+            // 名称和好评
+            VStack(alignment: .leading, spacing: 2) {
+                Text(game.name)
+                    .font(.system(size: 15, weight: .semibold))
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack(spacing: 4) {
+                    Image(systemName: "star.fill")
+                        .foregroundColor(.orange)
+                        .font(.system(size: 11))
+                    Text(game.reviewRatePercentage)
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundColor((percent ?? 0) >= 0 ? .green : .red)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(((percent ?? 0) >= 0 ? Color.green : Color.red).opacity(0.1))
-                        .cornerRadius(4)
+                        .foregroundColor(.secondary)
+                    Text("·")
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                    Text("\(formatNumber(game.positiveReviews))好评")
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondary)
                 }
             }
-            .padding(.vertical, 10)
-            .padding(.horizontal, 12)
-            .background(Color(.systemBackground))
-            .cornerRadius(12)
-            .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
+            // 价格和涨跌幅
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(game.formattedPrice)
+                    .font(.system(size: 15, weight: .bold))
+                    .lineLimit(1)
+                Text(percent != nil ? String(format: "%@%.2f%%", percent! >= 0 ? "+" : "", percent!) : "--")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor((percent ?? 0) >= 0 ? .green : .red)
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 1)
+                    .background(((percent ?? 0) >= 0 ? Color.green : Color.red).opacity(0.1))
+                    .cornerRadius(3)
+            }
+            // 关注按钮
+            Image(systemName: isFollowed ? "star.fill" : "star")
+                .foregroundColor(.yellow)
+                .font(.system(size: 20))
+                .padding(.leading, 2)
+                .onTapGesture { onToggleFollow() }
         }
-        .buttonStyle(PlainButtonStyle())
+        .contentShape(Rectangle())
+        .onTapGesture { onTap() }
+        .padding(.vertical, 6)
+        .padding(.horizontal, 10)
+        .background(Color(.systemBackground))
+        .cornerRadius(10)
+        .shadow(color: .black.opacity(0.04), radius: 1, x: 0, y: 1)
     }
     
     private func formatNumber(_ number: Int) -> String {

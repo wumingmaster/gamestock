@@ -21,6 +21,7 @@ class MarketViewModel: ObservableObject {
     @Published var showSortMenu = false
     @Published var lastUpdateTime: Date?
     @Published var networkStatus: NetworkStatus = .idle
+    @Published var followedGameIds: Set<Int> = []
     
     // MARK: - Private Properties
     private let networkManager = NetworkManager.shared
@@ -29,14 +30,19 @@ class MarketViewModel: ObservableObject {
     
     // MARK: - Constants
     private let autoRefreshInterval: TimeInterval = 60 // 60秒自动刷新
+    let defaultFollowedGameIds: [Int] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20] // 示例ID，需替换为真实热门游戏ID
     
     // MARK: - Computed Properties
     var filteredGames: [Game] {
-        let filtered = searchText.isEmpty ? games : games.filter { game in
-            game.name.localizedCaseInsensitiveContains(searchText)
+        if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return games.filter { followedGameIds.contains($0.id) }
+        } else {
+            let keyword = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+            return games.filter {
+                $0.name.localizedCaseInsensitiveContains(keyword) ||
+                ($0.nameZh?.localizedCaseInsensitiveContains(keyword) ?? false)
+            }
         }
-        
-        return sortedGames(filtered)
     }
     
     var formattedLastUpdateTime: String {
@@ -53,6 +59,7 @@ class MarketViewModel: ObservableObject {
     init() {
         setupAutoLogin()
         setupAutoRefresh()
+        loadFollowedGames()
     }
     
     deinit {
@@ -129,6 +136,29 @@ class MarketViewModel: ObservableObject {
         guard let yesterdayPrice = PriceHistoryManager.shared.yesterdayPrice(gameId: game.id), yesterdayPrice > 0 else { return nil }
         let change = (game.currentPrice - yesterdayPrice) / yesterdayPrice * 100
         return change
+    }
+    
+    func toggleFollow(game: Game) {
+        if followedGameIds.contains(game.id) {
+            followedGameIds.remove(game.id)
+        } else {
+            followedGameIds.insert(game.id)
+        }
+        saveFollowedGames()
+    }
+    
+    func saveFollowedGames() {
+        UserDefaults.standard.set(Array(followedGameIds), forKey: "followedGameIds")
+    }
+    
+    func loadFollowedGames() {
+        if let ids = UserDefaults.standard.array(forKey: "followedGameIds") as? [Int] {
+            followedGameIds = Set(ids)
+        } else {
+            // 首次启动，写入默认关注
+            followedGameIds = Set(defaultFollowedGameIds)
+            saveFollowedGames()
+        }
     }
     
     // MARK: - Private Methods
