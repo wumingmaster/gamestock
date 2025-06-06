@@ -6,6 +6,8 @@ import os
 import json
 import stat
 import subprocess
+import csv
+from sqlalchemy import inspect
 
 STEAM_APP_LIST_URL = 'https://api.steampowered.com/ISteamApps/GetAppList/v2/'
 BATCH_SIZE = 5
@@ -15,6 +17,8 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 INSTANCE_DIR = os.path.join(BASE_DIR, 'instance')
 PROGRESS_FILE = os.path.join(BASE_DIR, 'progress_sync_steam_games.txt')
 db_path = os.path.join(INSTANCE_DIR, 'gamestock.db')
+CSV_FILE = os.path.join(BASE_DIR, 'steam_games_backup.csv')
+JSONL_FILE = os.path.join(BASE_DIR, 'steam_games_backup.jsonl')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 
 # 路径和权限检查
@@ -70,6 +74,17 @@ if os.path.exists(db_path):
 else:
     print(f"[提示] 数据库文件不存在，将在首次写入时自动创建。")
 
+def print_resource_status(batch_idx):
+    try:
+        ulimit = subprocess.getoutput('ulimit -n')
+        print(f"[资源监控] 当前ulimit -n: {ulimit}")
+        df = subprocess.getoutput(f'df -h "{BASE_DIR}"')
+        print(f"[资源监控] 磁盘空间: \n{df}")
+        if os.path.exists(db_path):
+            out = subprocess.getoutput(f'sqlite3 "{db_path}" "PRAGMA integrity_check;"')
+            print(f"[资源监控] 数据库完整性: {out}")
+    except Exception as e:
+        print(f"[资源监控错误] {e}")
 
 def fetch_steam_applist(max_retries=5):
     for attempt in range(max_retries):
@@ -125,31 +140,65 @@ def sync_games():
     total_batches = (total + BATCH_SIZE - 1) // BATCH_SIZE
     print(f"当前进度：已完成 {start_batch}/{total_batches} 批。将从第 {start_batch+1} 批开始。")
 
+    # 初始化CSV和JSONL文件（首批写入表头/清空）
+    if start_batch == 0:
+        with open(CSV_FILE, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(['appid', 'name'])
+        with open(JSONL_FILE, 'w', encoding='utf-8') as jsonlfile:
+            pass  # 清空内容
+
     for batch_idx in range(start_batch, total_batches):
         batch = applist[batch_idx*BATCH_SIZE : (batch_idx+1)*BATCH_SIZE]
-        for app in batch:
-            appid = app.get('appid')
-            name = app.get('name')
-            if not appid or not name:
-                continue
-            try:
-                game = Game.query.filter_by(appid=appid).first()
-                if game:
-                    game.name = name
-                    game.last_update = datetime.utcnow()
-                else:
-                    game = Game(appid=appid, name=name, last_update=datetime.utcnow())
-                    db.session.add(game)
-            except Exception as e:
-                print(f"[数据库写入错误] appid={appid} name={name} 错误: {e}")
+        # 追加写入CSV和JSONL
+        try:
+            with open(CSV_FILE, 'a', newline='', encoding='utf-8') as csvfile, \
+                 open(JSONL_FILE, 'a', encoding='utf-8') as jsonlfile:
+                csv_writer = csv.writer(csvfile)
+                for app in batch:
+                    appid = app.get('appid')
+                    name = app.get('name')
+                    if not appid or not name:
+                        continue
+                    # 数据库写入
+                    try:
+                        game = Game.query.filter_by(appid=appid).first()
+                        if game:
+                            game.name = name
+                            game.last_update = datetime.utcnow()
+                        else:
+                            game = Game(appid=appid, name=name, last_update=datetime.utcnow())
+                            db.session.add(game)
+                    except Exception as e:
+                        print(f"[数据库写入错误] appid={appid} name={name} 错误: {e}")
+                    # CSV写入
+                    try:
+                        csv_writer.writerow([appid, name])
+                    except Exception as e:
+                        print(f"[CSV写入错误] appid={appid} name={name} 错误: {e}")
+                    # JSONL写入
+                    try:
+                        jsonlfile.write(json.dumps({'appid': appid, 'name': name}, ensure_ascii=False) + '\n')
+                    except Exception as e:
+                        print(f"[JSONL写入错误] appid={appid} name={name} 错误: {e}")
+        except Exception as e:
+            print(f"[文件写入错误] 批次 {batch_idx+1}: {e}")
+        # 数据库提交与session关闭
         try:
             db.session.commit()
         except Exception as e:
             print(f"[数据库提交错误] 批次 {batch_idx+1}: {e}")
+        try:
+            db.session.close()
+            if inspect(db.engine).pool.checkedout():
+                print("[警告] 数据库连接未完全释放")
+        except Exception as e:
+            print(f"[session关闭错误] {e}")
         save_progress(batch_idx+1)
         print(f"已完成第 {batch_idx+1}/{total_batches} 批（共{BATCH_SIZE}个），进度已保存。")
+        if (batch_idx+1) % 1000 == 0:
+            print_resource_status(batch_idx+1)
     print(f"全部完成！共处理 {total} 个游戏。耗时 {time.time() - start_time:.1f} 秒。")
-    # 同步完成后清理进度文件
     if os.path.exists(PROGRESS_FILE):
         os.remove(PROGRESS_FILE)
 
