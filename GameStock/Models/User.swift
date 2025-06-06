@@ -18,7 +18,7 @@ struct User: Identifiable, Codable {
     let isActive: Bool
     
     var formattedBalance: String {
-        return String(format: "$%.2f", balance)
+        return String(format: "Ⓖ%.2f", balance)
     }
     
     enum CodingKeys: String, CodingKey {
@@ -125,11 +125,11 @@ struct Portfolio: Codable {
     let holdings: [Holding]
     
     var formattedTotalValue: String {
-        return String(format: "$%.2f", totalValue)
+        return String(format: "Ⓖ%.2f", totalValue)
     }
     
     var formattedCashBalance: String {
-        return String(format: "$%.2f", cashBalance)
+        return String(format: "Ⓖ%.2f", cashBalance)
     }
     
     var gainLossColor: Color {
@@ -159,7 +159,7 @@ struct Holding: Identifiable, Codable {
     
     var formattedGainLoss: String {
         let sign = gainLoss >= 0 ? "+" : ""
-        return "\(sign)$\(String(format: "%.2f", gainLoss))"
+        return "\(sign)Ⓖ\(String(format: "%.2f", gainLoss))"
     }
     
     var formattedPercentage: String {
@@ -196,7 +196,7 @@ struct Transaction: Identifiable, Codable {
     let timestamp: Date
     
     var formattedAmount: String {
-        return String(format: "$%.2f", totalAmount)
+        return String(format: "Ⓖ%.2f", totalAmount)
     }
     
     var typeColor: Color {

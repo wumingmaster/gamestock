@@ -92,7 +92,7 @@ struct PortfolioView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                 
-                Text(viewModel.portfolio?.formattedTotalValue ?? "$0.00")
+                Text(viewModel.portfolio?.formattedTotalValue ?? "Ⓖ0.00")
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(.primary)
@@ -141,13 +141,13 @@ struct PortfolioView: View {
             HStack(spacing: 20) {
                 AssetItem(
                     title: "现金",
-                    amount: viewModel.portfolio?.formattedCashBalance ?? "$0.00",
+                    amount: viewModel.portfolio?.formattedCashBalance ?? "Ⓖ0.00",
                     color: .blue
                 )
                 
                 AssetItem(
                     title: "股票",
-                    amount: String(format: "$%.2f", viewModel.portfolio?.stockValue ?? 0),
+                    amount: String(format: "Ⓖ%.2f", viewModel.portfolio?.stockValue ?? 0),
                     color: .green
                 )
                 
@@ -355,13 +355,13 @@ struct HoldingCard: View {
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .lineLimit(1)
-                Text("\(holding.quantity) 股 · $\(String(format: "%.2f", holding.averageCost))")
+                Text("\(holding.quantity) 股 · Ⓖ\(String(format: "%.2f", holding.averageCost))")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
             Spacer()
             VStack(alignment: .trailing, spacing: 4) {
-                Text("$\(String(format: "%.2f", holding.totalValue))")
+                Text("Ⓖ\(String(format: "%.2f", holding.totalValue))")
                     .font(.subheadline)
                     .fontWeight(.semibold)
                 HStack(spacing: 4) {

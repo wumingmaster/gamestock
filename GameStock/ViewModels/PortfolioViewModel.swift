@@ -27,7 +27,7 @@ class PortfolioViewModel: ObservableObject {
     
     /// 今日收益
     var todayGainLoss: String {
-        guard let portfolio = portfolio else { return "$0.00" }
+        guard let portfolio = portfolio else { return "Ⓖ0.00" }
         var total: Double = 0
         for holding in portfolio.holdings {
             let current = holding.currentPrice
@@ -37,7 +37,7 @@ class PortfolioViewModel: ObservableObject {
             }
         }
         let sign = total >= 0 ? "+" : ""
-        return "\(sign)$\(String(format: "%.2f", total))"
+        return "\(sign)Ⓖ\(String(format: "%.2f", total))"
     }
     
     /// 今日收益颜色
@@ -47,9 +47,9 @@ class PortfolioViewModel: ObservableObject {
     
     /// 总收益
     var totalGainLoss: String {
-        guard let portfolio = portfolio else { return "$0.00" }
+        guard let portfolio = portfolio else { return "Ⓖ0.00" }
         let sign = portfolio.totalGainLoss >= 0 ? "+" : ""
-        return "\(sign)$\(String(format: "%.2f", portfolio.totalGainLoss))"
+        return "\(sign)Ⓖ\(String(format: "%.2f", portfolio.totalGainLoss))"
     }
     
     /// 总收益百分比

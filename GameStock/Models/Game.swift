@@ -25,7 +25,7 @@ struct Game: Identifiable, Codable, Hashable {
     
     // 计算属性
     var formattedPrice: String {
-        return String(format: "$%.2f", currentPrice)
+        return String(format: "Ⓖ%.2f", currentPrice)
     }
     
     var reviewRatePercentage: String {

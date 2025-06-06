@@ -357,7 +357,7 @@ struct TradingView: View {
                     Text("可用现金")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    Text("$\(viewModel.availableCash, specifier: "%.2f")")
+                    Text("Ⓖ\(viewModel.availableCash, specifier: "%.2f")")
                         .font(.title3)
                         .fontWeight(.bold)
                         .foregroundColor(.green)
@@ -383,7 +383,7 @@ struct TradingView: View {
                     Text("持仓价值")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    Text("$\(Double(viewModel.currentHolding) * game.currentPrice, specifier: "%.2f")")
+                    Text("Ⓖ\(Double(viewModel.currentHolding) * game.currentPrice, specifier: "%.2f")")
                         .font(.title3)
                         .fontWeight(.bold)
                         .foregroundColor(.orange)
@@ -506,7 +506,7 @@ struct TradingView: View {
             
             // 可用余额/持仓信息
             if viewModel.tradingType == .buy {
-                Text("可用现金: $\(viewModel.availableCash, specifier: "%.2f")")
+                Text("可用现金: Ⓖ\(viewModel.availableCash, specifier: "%.2f")")
                     .font(.caption)
                     .foregroundColor(.secondary)
             } else {
@@ -530,7 +530,7 @@ struct TradingView: View {
                 
                 Spacer()
                 
-                Text("$\(viewModel.totalAmount, specifier: "%.2f")")
+                Text("Ⓖ\(viewModel.totalAmount, specifier: "%.2f")")
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundColor(viewModel.tradingType.color)

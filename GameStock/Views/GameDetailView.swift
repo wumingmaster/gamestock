@@ -235,7 +235,7 @@ struct GameDetailView: View {
                     AxisGridLine()
                     AxisValueLabel() {
                         if let price = value.as(Double.self) {
-                            Text("$\(price, specifier: "%.0f")")
+                            Text("Ⓖ\(price, specifier: "%.0f")")
                                 .font(.caption2)
                         }
                     }
@@ -318,7 +318,7 @@ struct GameDetailView: View {
                     Text("可用资金")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    Text("$\(tradingViewModel.availableCash, specifier: "%.2f")")
+                    Text("Ⓖ\(tradingViewModel.availableCash, specifier: "%.2f")")
                         .font(.subheadline)
                         .fontWeight(.semibold)
                 }

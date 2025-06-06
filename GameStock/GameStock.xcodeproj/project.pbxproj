@@ -29,6 +29,7 @@
 		D9680E6D2DF0939800D5B950 /* PortfolioViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9680E6B2DF0939800D5B950 /* PortfolioViewModel.swift */; };
 		D9680E6E2DF0939800D5B950 /* GameDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9680E6A2DF0939800D5B950 /* GameDetailViewModel.swift */; };
 		D9680E6F2DF0939800D5B950 /* TradingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9680E6C2DF0939800D5B950 /* TradingViewModel.swift */; };
+		D977CBF92DF2AB5D00C4355F /* TransactionHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D977CBF82DF2AB5D00C4355F /* TransactionHistoryView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,6 +76,7 @@
 		D9680E6A2DF0939800D5B950 /* GameDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameDetailViewModel.swift; sourceTree = "<group>"; };
 		D9680E6B2DF0939800D5B950 /* PortfolioViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioViewModel.swift; sourceTree = "<group>"; };
 		D9680E6C2DF0939800D5B950 /* TradingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TradingViewModel.swift; sourceTree = "<group>"; };
+		D977CBF82DF2AB5D00C4355F /* TransactionHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,6 +178,7 @@
 		D957E54C2DEDE142008A5E46 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				D977CBF82DF2AB5D00C4355F /* TransactionHistoryView.swift */,
 				D9680E472DF08B4800D5B950 /* GameDetailView.swift */,
 				D9680E482DF08B4800D5B950 /* PortfolioView.swift */,
 				D9680E4A2DF08B4800D5B950 /* TradingView.swift */,
@@ -354,6 +357,7 @@
 				D9680E5D2DF08BD000D5B950 /* UserService.swift in Sources */,
 				D957E5572DEDE70F008A5E46 /* MarketView.swift in Sources */,
 				D957E5232DEDAD36008A5E46 /* ContentView.swift in Sources */,
+				D977CBF92DF2AB5D00C4355F /* TransactionHistoryView.swift in Sources */,
 				D95EDC282DF2A03E00C009B0 /* PriceHistoryManager.swift in Sources */,
 				D957E5512DEDE184008A5E46 /* Game.swift in Sources */,
 				D957E5212DEDAD36008A5E46 /* GameStockApp.swift in Sources */,

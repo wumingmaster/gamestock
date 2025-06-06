@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+// 如果有 GameStock 这个 module，也可以加上
+// import GameStock
 
 struct ContentView: View {
     var body: some View {
@@ -22,7 +24,7 @@ struct ContentView: View {
                     Text("资产组合")
                 }
             
-            TransactionHistoryViewSimple()
+            TransactionHistoryView()
                 .tabItem {
                     Image(systemName: "clock.arrow.circlepath")
                     Text("历史")
