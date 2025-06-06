@@ -1,0 +1,1 @@
+log(f'Game: id={game.id}, steam_id={getattr(game, "steam_id", None)}, name={game.name}') 
