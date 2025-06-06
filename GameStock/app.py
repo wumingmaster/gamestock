@@ -1,8 +1,34 @@
+from flask import Flask, jsonify, request, render_template, session
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
+import os
+from dotenv import load_dotenv
+import math
+import requests
 from datetime import datetime
+import hashlib
+import secrets
 
-db = SQLAlchemy()
+# 加载环境变量
+load_dotenv()
 
+# 创建Flask应用
+app = Flask(__name__)
+CORS(app)
+
+# 数据库配置
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/gamestock.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'gamestock-secret-key'
+
+# 初始化数据库
+db = SQLAlchemy(app)
+
+# Steam API配置
+STEAM_API_KEY = 'F7CA22D08BE8B62D94BA5568702B08B2'
+STEAM_API_BASE = 'https://api.steampowered.com'
+
+# 数据库模型
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -26,8 +52,3 @@ class Game(db.Model):
     # release_date = db.Column(db.String(50))              # 发售日期
     # developer = db.Column(db.String(100))                # 开发商
     # publisher = db.Column(db.String(100))                # 发行商 
-
-# 数据库配置
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/gamestock.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'gamestock-secret-key' 
