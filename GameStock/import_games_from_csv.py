@@ -1,10 +1,79 @@
 import csv
 import os
+import stat
+import subprocess
 from app import app, db, Game
 
 CSV_FILE = os.path.join(os.path.dirname(__file__), 'steam_games_backup.csv')
 PROGRESS_FILE = os.path.join(os.path.dirname(__file__), 'import_games_progress.txt')
+INSTANCE_DIR = os.path.join(os.path.dirname(__file__), 'instance')
+DB_FILE = os.path.join(INSTANCE_DIR, 'gamestock.db')
 BATCH_SIZE = 1000
+
+# 路径和权限检查
+print(f"[路径检查] CSV_FILE: {CSV_FILE}")
+print(f"[路径检查] INSTANCE_DIR: {INSTANCE_DIR}")
+print(f"[路径检查] DB_FILE: {DB_FILE}")
+
+# 检查父目录权限
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+parent_mode = oct(os.stat(parent_dir).st_mode)[-3:]
+print(f"[路径检查] 父目录: {parent_dir} 权限: {parent_mode}")
+if parent_mode not in ("777", "775", "755"):
+    print(f"[警告] 父目录权限为 {parent_mode}，建议为 777/775/755。尝试自动修正...")
+    try:
+        os.chmod(parent_dir, 0o755)
+        print(f"[自动修复] 父目录权限已设为755。")
+    except Exception as e:
+        print(f"[错误] 父目录权限修正失败: {e}")
+
+# 检查并修复instance目录
+if not os.path.exists(INSTANCE_DIR):
+    print(f"[自动修复] instance 目录不存在，正在创建...")
+    try:
+        os.makedirs(INSTANCE_DIR, exist_ok=True)
+        print(f"[自动修复] 已创建 instance 目录。")
+    except Exception as e:
+        print(f"[错误] 创建 instance 目录失败: {e}")
+        exit(1)
+try:
+    os.chmod(INSTANCE_DIR, 0o777)
+    print(f"[自动修复] instance 目录权限已设为777。")
+except Exception as e:
+    print(f"[错误] instance 目录权限修正失败: {e}")
+try:
+    subprocess.run(['xattr', '-c', INSTANCE_DIR], check=False)
+    print(f"[自动修复] 已清理 instance 目录扩展属性。")
+except Exception as e:
+    print(f"[警告] 清理 instance 目录扩展属性失败: {e}")
+
+# 检查数据库文件
+if os.path.exists(DB_FILE):
+    print(f"[检查] 数据库文件已存在: {DB_FILE}")
+    try:
+        os.chmod(DB_FILE, 0o666)
+        print(f"[自动修复] 数据库文件权限已设为666。")
+    except Exception as e:
+        print(f"[错误] 数据库文件权限修正失败: {e}")
+    try:
+        subprocess.run(['xattr', '-c', DB_FILE], check=False)
+        print(f"[自动修复] 已清理数据库文件扩展属性。")
+    except Exception as e:
+        print(f"[警告] 清理数据库文件扩展属性失败: {e}")
+else:
+    print(f"[错误] 数据库文件不存在: {DB_FILE}，请先用Flask初始化数据库！")
+
+# 检查CSV文件
+if os.path.exists(CSV_FILE):
+    print(f"[检查] CSV文件已存在: {CSV_FILE}")
+    try:
+        os.chmod(CSV_FILE, 0o666)
+        print(f"[自动修复] CSV文件权限已设为666。")
+    except Exception as e:
+        print(f"[错误] CSV文件权限修正失败: {e}")
+else:
+    print(f"[错误] CSV文件不存在: {CSV_FILE}，请先生成或上传！")
+
 
 def load_progress():
     if os.path.exists(PROGRESS_FILE):
