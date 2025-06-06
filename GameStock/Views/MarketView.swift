@@ -139,6 +139,7 @@ struct MarketView: View {
                 viewModel.refresh()
             }
         }
+        .background(Color(.secondarySystemBackground))
     }
     
     // MARK: - iPhone优化的搜索和排序栏
@@ -184,7 +185,7 @@ struct MarketView: View {
         }
         .padding(.top, 8)
         .padding(.bottom, 10)
-        .background(Color.white)
+        .background(Color(.secondarySystemBackground))
         .shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
     }
     
@@ -221,7 +222,7 @@ struct MarketView: View {
                     }
                     .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                     .listRowSeparator(.hidden)
-                    .background(Color.white)
+                    .background(Color(.systemBackground))
                 }
                 .listStyle(PlainListStyle())
                 .scrollIndicators(.hidden)
@@ -326,7 +327,7 @@ struct GameRowView: View {
             }
             .padding(.vertical, 10)
             .padding(.horizontal, 12)
-            .background(Color.white)
+            .background(Color(.systemBackground))
             .cornerRadius(12)
             .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
         }

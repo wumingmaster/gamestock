@@ -22,25 +22,18 @@
 	<string>1</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
-	<!-- App Transport Security 设置 -->
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>MinimumOSVersion</key>
+	<string>16.4</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-		<!-- 允许任意加载（仅用于开发阶段） -->
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
-		<!-- 允许本地网络 -->
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
-		<!-- localhost 例外设置 -->
 		<key>NSExceptionDomains</key>
 		<dict>
-			<key>localhost</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-				<key>NSExceptionMinimumTLSVersion</key>
-				<string>TLSv1.0</string>
-			</dict>
 			<key>127.0.0.1</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
@@ -55,15 +48,14 @@
 				<key>NSExceptionMinimumTLSVersion</key>
 				<string>TLSv1.0</string>
 			</dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSExceptionMinimumTLSVersion</key>
+				<string>TLSv1.0</string>
+			</dict>
 		</dict>
-	</dict>
-	<!-- UI配置 -->
-	<key>UILaunchScreen</key>
-	<dict>
-		<key>UIImageName</key>
-		<string>AppIcon</string>
-		<key>UIColorName</key>
-		<string>AccentColor</string>
 	</dict>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
@@ -79,6 +71,15 @@
 		<integer>1</integer>
 		<integer>2</integer>
 	</array>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>AccentColor</string>
+		<key>UIImageName</key>
+		<string>AppIcon</string>
+	</dict>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleDefault</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -92,11 +93,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>UIStatusBarStyle</key>
-	<string>UIStatusBarStyleDefault</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>MinimumOSVersion</key>
-	<string>16.4</string>
 </dict>
-</plist> 
+</plist>
