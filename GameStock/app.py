@@ -26,3 +26,8 @@ class Game(db.Model):
     # release_date = db.Column(db.String(50))              # 发售日期
     # developer = db.Column(db.String(100))                # 开发商
     # publisher = db.Column(db.String(100))                # 发行商 
+
+# 数据库配置
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/gamestock.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'gamestock-secret-key' 
