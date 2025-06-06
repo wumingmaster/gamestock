@@ -2,7 +2,7 @@ import csv
 import os
 import stat
 import subprocess
-from app import app, db, Game
+from models import db, Game
 
 # 强制绝对路径
 CSV_FILE = '/root/GameStock/GameStock/steam_games_backup.csv'

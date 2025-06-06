@@ -1,4 +1,5 @@
 from app import app, db, Game
+from models import db, Game
 import requests
 import time
 from datetime import datetime

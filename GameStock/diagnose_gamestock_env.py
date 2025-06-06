@@ -94,7 +94,7 @@ def main():
     try:
         sys.path.insert(0, BASE)
         from GameStock import app
-        from GameStock.models import db, Game
+        from models import db, Game
         with app.app_context():
             log('尝试查询一条 Game 记录...')
             game = Game.query.first()
