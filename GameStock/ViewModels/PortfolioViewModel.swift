@@ -17,6 +17,7 @@ class PortfolioViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var performanceData: [PerformanceDataPoint] = []
+    @Published var games: [Game] = []
     
     // MARK: - Private Properties
     private let networkManager = NetworkManager.shared
@@ -65,25 +66,40 @@ class PortfolioViewModel: ObservableObject {
     
     /// 加载投资组合数据
     func loadPortfolio() {
+        print("💼 开始加载投资组合...")
         isLoading = true
         errorMessage = nil
         
-        networkManager.fetchPortfolio()
-        .receive(on: DispatchQueue.main)
-        .sink(
-            receiveCompletion: { [weak self] completion in
-                self?.isLoading = false
-                if case .failure(let error) = completion {
-                    self?.errorMessage = error.localizedDescription
-                    // 使用示例数据作为后备
-                    self?.portfolio = Portfolio.sampleData
+        // 先确保用户已登录，然后获取投资组合
+        networkManager.autoLoginTestUser()
+            .flatMap { [weak self] _ -> AnyPublisher<Portfolio, NetworkError> in
+                print("✅ 登录成功，开始获取投资组合...")
+                guard let self = self else {
+                    return Fail(error: NetworkError.networkError(NSError(domain: "PortfolioViewModel", code: -1, userInfo: [NSLocalizedDescriptionKey: "ViewModel deallocated"])))
+                        .eraseToAnyPublisher()
                 }
-            },
-            receiveValue: { [weak self] (portfolio: Portfolio) in
-                self?.portfolio = portfolio
+                return self.networkManager.fetchPortfolio()
             }
-        )
-        .store(in: &cancellables)
+            .receive(on: DispatchQueue.main)
+            .sink(
+                receiveCompletion: { [weak self] completion in
+                    self?.isLoading = false
+                    switch completion {
+                    case .finished:
+                        print("🎉 投资组合加载完成")
+                    case .failure(let error):
+                        print("❌ 投资组合加载失败: \(error)")
+                        self?.errorMessage = error.localizedDescription
+                        // 使用示例数据作为后备
+                        self?.portfolio = Portfolio.sampleData
+                    }
+                },
+                receiveValue: { [weak self] (portfolio: Portfolio) in
+                    print("📊 收到投资组合数据: \(portfolio.holdings.count)个持仓")
+                    self?.portfolio = portfolio
+                }
+            )
+            .store(in: &cancellables)
     }
     
     /// 刷新数据
@@ -97,6 +113,29 @@ class PortfolioViewModel: ObservableObject {
     /// 获取特定游戏的持仓
     func getHolding(for gameId: Int) -> Holding? {
         return portfolio?.holdings.first { $0.gameId == gameId }
+    }
+    
+    /// 加载全量游戏列表
+    func loadGames() {
+        print("🎮 开始加载全量游戏列表...")
+        networkManager.fetchGames()
+            .receive(on: DispatchQueue.main)
+            .sink(
+                receiveCompletion: { [weak self] completion in
+                    switch completion {
+                    case .finished:
+                        print("✅ 游戏列表加载完成")
+                    case .failure(let error):
+                        print("❌ 游戏列表加载失败: \(error)")
+                        self?.games = []
+                    }
+                },
+                receiveValue: { [weak self] games in
+                    print("🎮 收到\(games.count)个游戏")
+                    self?.games = games
+                }
+            )
+            .store(in: &cancellables)
     }
     
     // MARK: - Private Methods

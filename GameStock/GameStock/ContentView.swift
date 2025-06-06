@@ -38,22 +38,8 @@ struct ContentView: View {
             VStack {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("GameStock v0.0.1")
-                            .font(.caption)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color.red)
-                            .cornerRadius(12)
-                        
-                        Text("DEBUG: Tab顺序已更新")
-                            .font(.caption2)
-                            .foregroundColor(.blue)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.blue.opacity(0.1))
-                            .cornerRadius(8)
+                        // Text("GameStock v0.0.1")
+                        // Text("DEBUG: Tab顺序已更新")
                     }
                     Spacer()
                 }

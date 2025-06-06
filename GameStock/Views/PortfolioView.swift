@@ -79,6 +79,7 @@ struct PortfolioView: View {
         }
         .onAppear {
             viewModel.loadPortfolio()
+            viewModel.loadGames()
         }
     }
     
@@ -200,23 +201,15 @@ struct PortfolioView: View {
                 }
             }
             
-            // 持仓列表
             if let holdings = viewModel.portfolio?.holdings, !holdings.isEmpty {
-                LazyVStack(spacing: 12) {
+                VStack(spacing: 12) {
                     ForEach(holdings) { holding in
-                        HoldingCard(holding: holding)
-                            .onTapGesture {
-                                // 这里可以添加跳转到交易页面的逻辑
-                            }
+                        HoldingCard(holding: holding, games: viewModel.games)
                     }
                 }
             } else {
-                EmptyStateView(
-                    icon: "briefcase",
-                    title: "暂无持仓",
-                    subtitle: "去市场页面买入您的第一支游戏股票吧！"
-                )
-                .padding(.vertical, 40)
+                EmptyStateView(icon: "tray", title: "暂无持仓", subtitle: "您还没有持有任何游戏股票，快去市场买入吧！")
+                    .padding(.vertical, 40)
             }
         }
     }
@@ -343,36 +336,39 @@ struct AssetItem: View {
 // MARK: - 持仓卡片组件
 struct HoldingCard: View {
     let holding: Holding
+    let games: [Game]
     
     var body: some View {
+        // 查找真实Game对象
+        let game = games.first { $0.id == holding.gameId || $0.steamId == String(holding.gameId) }
         HStack(spacing: 16) {
-            // 游戏图标 - 智能加载
-                                    PortfolioGameIconView.small(game: Game.sampleGames.first { $0.steamId == String(holding.gameId) } ?? Game.sampleGames[0])
-            
+            if let game = game {
+                PortfolioGameIconView.small(game: game)
+            } else {
+                Image(systemName: "gamecontroller.fill")
+                    .resizable()
+                    .frame(width: 50, height: 50)
+                    .foregroundColor(.gray)
+            }
             VStack(alignment: .leading, spacing: 4) {
                 Text(holding.gameName)
                     .font(.subheadline)
                     .fontWeight(.medium)
                     .lineLimit(1)
-                
                 Text("\(holding.quantity) 股 · $\(String(format: "%.2f", holding.averageCost))")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-            
             Spacer()
-            
             VStack(alignment: .trailing, spacing: 4) {
                 Text("$\(String(format: "%.2f", holding.totalValue))")
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                
                 HStack(spacing: 4) {
                     Text(holding.formattedGainLoss)
                         .font(.caption)
                         .fontWeight(.medium)
                         .foregroundColor(holding.gainLossColor)
-                    
                     Text("(\(holding.formattedPercentage))")
                         .font(.caption)
                         .foregroundColor(holding.gainLossColor)

@@ -31,7 +31,92 @@ struct User: Identifiable, Codable {
     }
 }
 
-// MARK: - Portfolio Model
+// MARK: - Portfolio Response Model (匹配服务器返回格式)
+struct PortfolioResponse: Codable {
+    let portfolios: [ServerHolding]
+    let summary: PortfolioSummary
+    
+    // 转换为客户端Portfolio格式
+    var toClientPortfolio: Portfolio {
+        let holdings = portfolios.map { serverHolding in
+            Holding(
+                id: serverHolding.id,
+                gameId: serverHolding.gameId,
+                gameName: serverHolding.gameName,
+                quantity: serverHolding.shares,
+                averageCost: serverHolding.avgBuyPrice,
+                currentPrice: serverHolding.currentPrice,
+                totalValue: serverHolding.totalValue,
+                gainLoss: serverHolding.profitLoss,
+                gainLossPercentage: serverHolding.profitLossPercent
+            )
+        }
+        
+        return Portfolio(
+            totalValue: summary.totalAssets,
+            cashBalance: summary.cashBalance,
+            stockValue: summary.totalValue,
+            totalGainLoss: summary.totalProfitLoss,
+            holdings: holdings
+        )
+    }
+}
+
+// MARK: - Server Holding Model
+struct ServerHolding: Codable {
+    let id: Int
+    let gameId: Int
+    let gameName: String
+    let shares: Int
+    let avgBuyPrice: Double
+    let currentPrice: Double
+    let totalValue: Double
+    let profitLoss: Double
+    let profitLossPercent: Double
+    let createdAt: String
+    let updatedAt: String
+    let userId: Int
+    let gameSteamId: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case gameId = "game_id"
+        case gameName = "game_name"
+        case shares
+        case avgBuyPrice = "avg_buy_price"
+        case currentPrice = "current_price"
+        case totalValue = "total_value"
+        case profitLoss = "profit_loss"
+        case profitLossPercent = "profit_loss_percent"
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+        case userId = "user_id"
+        case gameSteamId = "game_steam_id"
+    }
+}
+
+// MARK: - Portfolio Summary Model
+struct PortfolioSummary: Codable {
+    let cashBalance: Double
+    let totalAssets: Double
+    let totalCost: Double
+    let totalProfitLoss: Double
+    let totalProfitLossPercent: Double
+    let totalStocks: Int
+    let totalValue: Double
+    
+    enum CodingKeys: String, CodingKey {
+        case cashBalance = "cash_balance"
+        case totalAssets = "total_assets"
+        case totalCost = "total_cost"
+        case totalProfitLoss = "total_profit_loss"
+        case totalProfitLossPercent = "total_profit_loss_percent"
+        case totalStocks = "total_stocks"
+        case totalValue = "total_value"
+    }
+}
+
+// MARK: - Portfolio Model (客户端使用)
 struct Portfolio: Codable {
     let totalValue: Double
     let cashBalance: Double
@@ -152,22 +237,56 @@ enum TransactionType: String, Codable, CaseIterable {
 // MARK: - API Response Models
 
 struct LoginResponse: Codable {
+    let message: String
+    let user: UserInfo
+    
+    // 为兼容性提供计算属性
+    var id: Int { user.id }
+    var username: String { user.username }
+    var email: String { user.email }
+    var balance: Double { user.balance }
+}
+
+struct UserInfo: Codable {
     let id: Int
     let username: String
     let email: String
     let balance: Double
-    let message: String?
+    let isActive: Bool
+    let createdAt: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case username
+        case email
+        case balance
+        case isActive = "is_active"
+        case createdAt = "created_at"
+    }
 }
 
 struct TransactionResponse: Codable {
-    let message: String
-    let userBalance: Double
+    let message: String?
+    let error: String?
+    let userBalance: Double?
     let transaction: TransactionDetail?
     let portfolio: PortfolioDetail?
     
     // 计算属性以保持兼容性
     var success: Bool {
-        return !message.contains("失败") && !message.contains("错误")
+        // 如果有error字段，说明失败了
+        if let _ = error {
+            return false
+        }
+        // 如果有message字段，检查内容
+        if let msg = message {
+            return !msg.contains("失败") && !msg.contains("错误")
+        }
+        return false
+    }
+    
+    var actualMessage: String {
+        return message ?? error ?? "未知错误"
     }
     
     var newBalance: Double? {
@@ -176,6 +295,7 @@ struct TransactionResponse: Codable {
     
     enum CodingKeys: String, CodingKey {
         case message
+        case error
         case userBalance = "user_balance"
         case transaction
         case portfolio
@@ -185,22 +305,18 @@ struct TransactionResponse: Codable {
 struct TransactionDetail: Codable {
     let id: Int
     let gameId: Int
-    let gameName: String
-    let transactionType: String
     let shares: Int
-    let pricePerShare: Double
-    let totalAmount: Double
-    let createdAt: String
+    let price: Double
+    let type: String
+    let timestamp: Date
     
     enum CodingKeys: String, CodingKey {
         case id
         case gameId = "game_id"
-        case gameName = "game_name"
-        case transactionType = "transaction_type"
         case shares
-        case pricePerShare = "price_per_share"
-        case totalAmount = "total_amount"
-        case createdAt = "created_at"
+        case price = "price_per_share"
+        case type = "transaction_type"
+        case timestamp = "created_at"
     }
 }
 

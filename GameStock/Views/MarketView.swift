@@ -42,15 +42,11 @@ struct GameIconView: View {
                     case .success(let image):
                         image.resizable().aspectRatio(contentMode: .fill).frame(width: size.width, height: size.height).clipped()
                             .onAppear {
-                                print("✅ 🛒 市场图标加载成功!")
-                                print("   游戏: \(game.name)")
-                                print("   URL: \(urlString)")
+                                // print("✅ 🛒 市场图标加载成功!")
                             }
                     case .failure(let error):
                         Color.clear.onAppear { 
                             print("❌ 🛒 市场图标加载失败!")
-                            print("   游戏: \(game.name)")
-                            print("   URL: \(urlString)")
                             print("   错误: \(error.localizedDescription)")
                             tryNextUrl() 
                         }
@@ -110,25 +106,24 @@ struct MarketView: View {
                 // 调试信息栏
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("MarketView v0.0.1")
-                            .font(.caption)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.green)
-                            .cornerRadius(8)
+                        // Text("MarketView v0.0.1")
+                        //Text("MarketView v0.0.1")
+                        //    .font(.caption)
+                        //    .fontWeight(.bold)
+                        //    .foregroundColor(.white)
+                        //    .padding(.horizontal, 8)
+                        //    .padding(.vertical, 4)
+                        //    .background(Color.green)
+                        //    .cornerRadius(8)
                         
-                        Text("DEBUG: 游戏数量 \(viewModel.games.count)")
-                            .font(.caption2)
-                            .foregroundColor(.orange)
+                        // Text("DEBUG: 游戏数量 \(viewModel.games.count)")
                     }
                     
                     Spacer()
                     
-                    Text("加载状态: \(viewModel.isLoading ? "加载中" : "已完成")")
-                        .font(.caption2)
-                        .foregroundColor(.blue)
+                        //Text("加载状态: \(viewModel.isLoading ? "加载中" : "已完成")")
+                        //.font(.caption2)
+                        //.foregroundColor(.blue)
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 8)

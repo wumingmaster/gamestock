@@ -12,12 +12,15 @@ class NetworkManager: ObservableObject {
     static let shared = NetworkManager()
     
     // MARK: - 配置
-    private let baseURL = "http://10.0.0.31:5001"
+    private let baseURL = "http://47.104.220.227"  // 阿里云公网IP
     private let session: URLSession
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - 初始化
     init() {
+        print("🚀 NetworkManager初始化开始...")
+        print("🌐 目标服务器: \(baseURL)")
+        
         // 配置URLSession以支持Cookie
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 30
@@ -29,6 +32,52 @@ class NetworkManager: ObservableObject {
         self.session = URLSession(configuration: config)
         
         print("🍪 NetworkManager初始化完成，Cookie支持已启用")
+        print("⚙️ URLSession配置完成")
+        
+        // 测试网络连接
+        testNetworkConnectivity()
+    }
+    
+    // MARK: - 网络连接测试
+    private func testNetworkConnectivity() {
+        print("🔍 开始测试网络连接...")
+        
+        guard let url = URL(string: baseURL + "/api/games") else {
+            print("❌ URL构建失败: \(baseURL)/api/games")
+            return
+        }
+        
+        print("✅ URL构建成功: \(url)")
+        
+        // 简单的连接测试
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 10
+        
+        print("📡 发送测试请求...")
+        
+        session.dataTask(with: request) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("❌ 网络测试失败: \(error)")
+                    print("❌ 错误类型: \(type(of: error))")
+                    if let urlError = error as? URLError {
+                        print("❌ URLError代码: \(urlError.code.rawValue)")
+                        print("❌ URLError描述: \(urlError.localizedDescription)")
+                    }
+                } else if let httpResponse = response as? HTTPURLResponse {
+                    print("✅ 网络测试成功!")
+                    print("📡 HTTP状态码: \(httpResponse.statusCode)")
+                    print("📡 响应头: \(httpResponse.allHeaderFields)")
+                    if let data = data {
+                        print("📊 收到数据: \(data.count) bytes")
+                    }
+                } else {
+                    print("⚠️ 收到未知响应类型")
+                }
+            }
+        }.resume()
     }
     
     // MARK: - 通用请求方法
@@ -134,8 +183,6 @@ class NetworkManager: ObservableObject {
             let container = try decoder.singleValueContainer()
             let dateStr = try container.decode(String.self)
             
-            print("🗓️ 尝试解析日期: \(dateStr)")
-            
             // 尝试不同的日期格式
             let formatters = [
                 "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",
@@ -150,7 +197,6 @@ class NetworkManager: ObservableObject {
                 formatter.timeZone = TimeZone.current
                 
                 if let date = formatter.date(from: dateStr) {
-                    print("✅ 成功解析日期: \(dateStr) -> \(date)")
                     return date
                 }
             }
@@ -176,8 +222,69 @@ class NetworkManager: ObservableObject {
     /// 自动登录测试用户
     func autoLoginTestUser() -> AnyPublisher<LoginResponse, NetworkError> {
         print("🔐 开始自动登录测试用户...")
+        print("📋 登录信息: 用户名=test_trader, 密码=password123")
+        print("🌐 登录地址: \(baseURL)/api/auth/login")
+        
         return login(username: "test_trader", password: "password123")
+            .handleEvents(
+                receiveSubscription: { _ in
+                    print("🔄 登录请求已发送...")
+                },
+                receiveOutput: { [weak self] response in
+                    print("✅ 登录成功！")
+                    print("💰 用户ID: \(response.id)")
+                    print("💰 用户名: \(response.username)")
+                    print("💰 邮箱: \(response.email)")
+                    print("💰 当前余额: $\(String(format: "%.2f", response.balance))")
+                    print("💰 创建时间: \(response.user.createdAt)")
+                    print("💰 账户状态: \(response.user.isActive ? "活跃" : "非活跃")")
+                    
+                    // 登录成功后立即获取投资组合信息
+                    self?.logUserPortfolioDetails()
+                },
+                receiveCompletion: { completion in
+                    switch completion {
+                    case .finished:
+                        print("🎉 登录流程完成")
+                    case .failure(let error):
+                        print("❌ 登录失败: \(error)")
+                    }
+                }
+            )
+            .eraseToAnyPublisher()
     }
+    
+    /// 记录用户投资组合详情
+    private func logUserPortfolioDetails() {
+        print("📊 开始获取用户投资组合详情...")
+        
+        fetchPortfolio()
+            .sink(
+                receiveCompletion: { completion in
+                    switch completion {
+                    case .finished:
+                        print("📊 投资组合获取完成")
+                    case .failure(let error):
+                        print("❌ 投资组合获取失败: \(error)")
+                    }
+                },
+                receiveValue: { portfolio in
+                    print("📊 ========== 投资组合详情 ==========")
+                    print("📊 现金余额: $\(String(format: "%.2f", portfolio.cashBalance))")
+                    print("📊 股票价值: $\(String(format: "%.2f", portfolio.stockValue))")
+                    print("📊 总资产: $\(String(format: "%.2f", portfolio.totalValue))")
+                    print("📊 总盈亏: $\(String(format: "%.2f", portfolio.totalGainLoss))")
+                    print("📊 持仓数量: \(portfolio.holdings.count)个")
+                    
+                    for (index, holding) in portfolio.holdings.enumerated() {
+                        print("📊 持仓\(index + 1): 游戏ID=\(holding.gameId), 股数=\(holding.quantity), 平均成本=$\(String(format: "%.2f", holding.averageCost)), 当前价值=$\(String(format: "%.2f", holding.totalValue))")
+                    }
+                    print("📊 ====================================")
+                }
+            )
+            .store(in: &cancellables)
+    }
+
     
     /// 用户注册
     func register(username: String, email: String, password: String) -> AnyPublisher<User, NetworkError> {
@@ -225,8 +332,12 @@ class NetworkManager: ObservableObject {
         return request(
             endpoint: "/api/trading/portfolio",
             method: .GET,
-            responseType: Portfolio.self
+            responseType: PortfolioResponse.self
         )
+        .map { portfolioResponse in
+            return portfolioResponse.toClientPortfolio
+        }
+        .eraseToAnyPublisher()
     }
     
     /// 买入股票
@@ -266,6 +377,15 @@ class NetworkManager: ObservableObject {
             method: .POST,
             body: body,
             responseType: TransactionResponse.self
+        )
+    }
+    
+    /// 获取交易历史
+    func fetchTransactions() -> AnyPublisher<[Transaction], NetworkError> {
+        return request(
+            endpoint: "/api/trading/transactions",
+            method: .GET,
+            responseType: [Transaction].self
         )
     }
 }

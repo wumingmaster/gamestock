@@ -251,7 +251,9 @@ struct TradingView: View {
             print("🌐 Steam ID: \(game.steamId)")
             viewModel.game = game
             print("✅ viewModel.game 已设置")
-            print("=========================\n")
+            viewModel.loadUserData()
+            print("🔄 已调用 viewModel.loadUserData() 刷新资产和持仓")
+            print("=========================")
         }
         .alert("交易结果", isPresented: $viewModel.showAlert) {
             Button("确定") {
