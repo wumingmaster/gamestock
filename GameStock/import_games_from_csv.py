@@ -4,10 +4,11 @@ import stat
 import subprocess
 from app import app, db, Game
 
-CSV_FILE = os.path.join(os.path.dirname(__file__), 'steam_games_backup.csv')
-PROGRESS_FILE = os.path.join(os.path.dirname(__file__), 'import_games_progress.txt')
-INSTANCE_DIR = os.path.join(os.path.dirname(__file__), 'instance')
-DB_FILE = os.path.join(INSTANCE_DIR, 'gamestock.db')
+# 强制绝对路径
+CSV_FILE = '/root/GameStock/GameStock/steam_games_backup.csv'
+PROGRESS_FILE = '/root/GameStock/GameStock/import_games_progress.txt'
+INSTANCE_DIR = '/root/GameStock/instance'
+DB_FILE = '/root/GameStock/instance/gamestock.db'
 BATCH_SIZE = 1000
 
 # 路径和权限检查
@@ -16,7 +17,7 @@ print(f"[路径检查] INSTANCE_DIR: {INSTANCE_DIR}")
 print(f"[路径检查] DB_FILE: {DB_FILE}")
 
 # 检查父目录权限
-parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+parent_dir = '/root/GameStock'
 parent_mode = oct(os.stat(parent_dir).st_mode)[-3:]
 print(f"[路径检查] 父目录: {parent_dir} 权限: {parent_mode}")
 if parent_mode not in ("777", "775", "755"):

@@ -16,15 +16,15 @@ BATCH_SIZE = 5
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 INSTANCE_DIR = os.path.join(BASE_DIR, 'instance')
 PROGRESS_FILE = os.path.join(BASE_DIR, 'progress_sync_steam_games.txt')
-db_path = os.path.join(INSTANCE_DIR, 'gamestock.db')
+DB_FILE = '/root/GameStock/instance/gamestock.db'
 CSV_FILE = os.path.join(BASE_DIR, 'steam_games_backup.csv')
 JSONL_FILE = os.path.join(BASE_DIR, 'steam_games_backup.jsonl')
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////root/GameStock/instance/gamestock.db'
 
 # 路径和权限检查
 print(f"[路径检查] BASE_DIR: {BASE_DIR}")
 print(f"[路径检查] INSTANCE_DIR: {INSTANCE_DIR}")
-print(f"[路径检查] DB_PATH: {db_path}")
+print(f"[路径检查] DB_FILE: {DB_FILE}")
 
 # 检查父目录权限
 parent_dir = os.path.dirname(BASE_DIR)
@@ -59,15 +59,15 @@ except Exception as e:
     print(f"[警告] 清理 instance 目录扩展属性失败: {e}")
 
 # 检查数据库文件
-if os.path.exists(db_path):
-    print(f"[检查] 数据库文件已存在: {db_path}")
+if os.path.exists(DB_FILE):
+    print(f"[检查] 数据库文件已存在: {DB_FILE}")
     try:
-        os.chmod(db_path, 0o666)
+        os.chmod(DB_FILE, 0o666)
         print(f"[自动修复] 数据库文件权限已设为666。")
     except Exception as e:
         print(f"[错误] 数据库文件权限修正失败: {e}")
     try:
-        subprocess.run(['xattr', '-c', db_path], check=False)
+        subprocess.run(['xattr', '-c', DB_FILE], check=False)
         print(f"[自动修复] 已清理数据库文件扩展属性。")
     except Exception as e:
         print(f"[警告] 清理数据库文件扩展属性失败: {e}")
@@ -80,8 +80,8 @@ def print_resource_status(batch_idx):
         print(f"[资源监控] 当前ulimit -n: {ulimit}")
         df = subprocess.getoutput(f'df -h "{BASE_DIR}"')
         print(f"[资源监控] 磁盘空间: \n{df}")
-        if os.path.exists(db_path):
-            out = subprocess.getoutput(f'sqlite3 "{db_path}" "PRAGMA integrity_check;"')
+        if os.path.exists(DB_FILE):
+            out = subprocess.getoutput(f'sqlite3 "{DB_FILE}" "PRAGMA integrity_check;"')
             print(f"[资源监控] 数据库完整性: {out}")
     except Exception as e:
         print(f"[资源监控错误] {e}")

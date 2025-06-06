@@ -17,7 +17,8 @@ app = Flask(__name__)
 CORS(app)
 
 # 数据库配置
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/gamestock.db'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////root/GameStock/instance/gamestock.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'gamestock-secret-key'
 
