@@ -5,6 +5,7 @@ import time
 import subprocess
 import traceback
 from datetime import datetime
+from flask import Flask
 
 LOG_FILE = 'diagnose_log.txt'
 
@@ -92,14 +93,15 @@ def main():
 
     section('SQLAlchemy 查询测试')
     try:
-        sys.path.insert(0, BASE)
-        from GameStock import app
         from models import db, Game
+        app = Flask(__name__)
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////root/GameStock/instance/gamestock.db'
+        db.init_app(app)
         with app.app_context():
             log('尝试查询一条 Game 记录...')
             game = Game.query.first()
             if game:
-                log(f'Game: id={game.id}, appid={getattr(game, "appid", None)}, name={game.name}')
+                log(f'Game: id={game.id}, steam_id={getattr(game, "steam_id", None)}, name={game.name}')
             else:
                 log('Game表为空')
     except Exception as e:
