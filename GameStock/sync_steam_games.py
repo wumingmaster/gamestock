@@ -6,7 +6,14 @@ import os
 
 STEAM_APP_LIST_URL = 'https://api.steampowered.com/ISteamApps/GetAppList/v2/'
 BATCH_SIZE = 50
-PROGRESS_FILE = 'progress_sync_steam_games.txt'
+
+# 获取项目根目录的绝对路径
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROGRESS_FILE = os.path.join(BASE_DIR, 'progress_sync_steam_games.txt')
+
+# 强制设置SQLAlchemy数据库绝对路径（防止app.py配置不一致）
+db_path = os.path.join(BASE_DIR, 'instance', 'gamestock.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 
 def fetch_steam_applist():
     try:
