@@ -3,9 +3,10 @@ import requests
 import time
 from datetime import datetime
 import os
+import json
 
 STEAM_APP_LIST_URL = 'https://api.steampowered.com/ISteamApps/GetAppList/v2/'
-BATCH_SIZE = 50
+BATCH_SIZE = 5
 
 # 获取项目根目录的绝对路径
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -15,15 +16,26 @@ PROGRESS_FILE = os.path.join(BASE_DIR, 'progress_sync_steam_games.txt')
 db_path = os.path.join(BASE_DIR, 'instance', 'gamestock.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 
-def fetch_steam_applist():
-    try:
-        resp = requests.get(STEAM_APP_LIST_URL, timeout=120)
-        resp.raise_for_status()
-        data = resp.json()
-        return data['applist']['apps']
-    except Exception as e:
-        print(f"拉取Steam全量游戏列表失败: {e}")
-        return []
+def fetch_steam_applist(max_retries=5):
+    for attempt in range(max_retries):
+        try:
+            print(f"尝试拉取Steam全量游戏列表（第{attempt+1}次）...")
+            resp = requests.get(
+                STEAM_APP_LIST_URL,
+                timeout=300,
+                stream=True
+            )
+            resp.raise_for_status()
+            # 先全部读入内存再解析
+            data = resp.raw.read()
+            apps = json.loads(data)['applist']['apps']
+            print(f"拉取成功，共{len(apps)}个游戏。")
+            return apps
+        except Exception as e:
+            print(f"拉取失败: {e}")
+            time.sleep(3)
+    print("多次尝试后仍然失败，请检查网络环境。")
+    return []
 
 def load_progress():
     if os.path.exists(PROGRESS_FILE):
@@ -39,7 +51,6 @@ def save_progress(batch_idx):
         f.write(str(batch_idx))
 
 def sync_games():
-    print("开始拉取Steam全量游戏列表...")
     start_time = time.time()
     applist = fetch_steam_applist()
     if not applist:
