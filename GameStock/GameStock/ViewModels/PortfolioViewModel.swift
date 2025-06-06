@@ -27,17 +27,10 @@ class PortfolioViewModel: ObservableObject {
     
     /// 今日收益
     var todayGainLoss: String {
-        guard let portfolio = portfolio else { return "$0.00" }
-        var total: Double = 0
-        for holding in portfolio.holdings {
-            let current = holding.currentPrice
-            if let yesterday = PriceHistoryManager.shared.yesterdayPrice(gameId: holding.gameId) {
-                let gain = (current - yesterday) * Double(holding.quantity)
-                total += gain
-            }
-        }
-        let sign = total >= 0 ? "+" : ""
-        return "\(sign)$\(String(format: "%.2f", total))"
+        // 模拟今日收益计算
+        let todayGain = Double.random(in: -500...500)
+        let sign = todayGain >= 0 ? "+" : ""
+        return "\(sign)$\(String(format: "%.2f", todayGain))"
     }
     
     /// 今日收益颜色

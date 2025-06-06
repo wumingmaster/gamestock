@@ -124,42 +124,30 @@ class MarketViewModel: ObservableObject {
         loadGames()
     }
     
-    /// 计算某只游戏的今日涨跌幅百分比
-    func priceChangePercent(for game: Game) -> Double? {
-        guard let yesterdayPrice = PriceHistoryManager.shared.yesterdayPrice(gameId: game.id), yesterdayPrice > 0 else { return nil }
-        let change = (game.currentPrice - yesterdayPrice) / yesterdayPrice * 100
-        return change
-    }
-    
     // MARK: - Private Methods
     
     private func setupAutoLogin() {
-        print("🔐 [MarketViewModel] 设置自动登录...")
-        print("🔐 [MarketViewModel] NetworkManager状态: \(networkManager)")
+        print("🔐 设置自动登录...")
         
         // 先尝试自动登录，然后加载游戏数据
-        print("🔐 [MarketViewModel] 开始调用autoLoginTestUser...")
-        
         networkManager.autoLoginTestUser()
             .receive(on: DispatchQueue.main)
             .sink(
                 receiveCompletion: { [weak self] completion in
-                    print("🔐 [MarketViewModel] 登录完成回调触发")
                     switch completion {
                     case .finished:
-                        print("✅ [MarketViewModel] 自动登录成功")
+                        print("✅ 自动登录成功")
                         // 登录成功后加载游戏数据
                         self?.loadGames()
                         
                     case .failure(let error):
-                        print("❌ [MarketViewModel] 自动登录失败: \(error)")
-                        print("❌ [MarketViewModel] 错误详情: \(error.localizedDescription)")
+                        print("❌ 自动登录失败: \(error)")
                         // 即使登录失败也尝试加载游戏数据（游戏列表不需要登录）
                         self?.loadGames()
                     }
                 },
                 receiveValue: { response in
-                    print("🎉 [MarketViewModel] 登录响应: \(response)")
+                    print("🎉 登录响应: \(response)")
                 }
             )
             .store(in: &cancellables)

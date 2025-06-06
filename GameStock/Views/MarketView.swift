@@ -8,92 +8,92 @@
 import SwiftUI
 
 // 临时GameIconView定义 - 解决编译问题
-struct GameIconView: View {
-    let game: Game
-    let size: CGSize
-    let cornerRadius: CGFloat
-    
-    @State private var currentUrlIndex = 0
-    @State private var hasError = false
-    
-    init(game: Game, width: CGFloat, height: CGFloat, cornerRadius: CGFloat = 8) {
-        self.game = game
-        self.size = CGSize(width: width, height: height)
-        self.cornerRadius = cornerRadius
-    }
-    
-    private var fallbackUrls: [String] {
-        // 使用Game模型的智能图标URL
-        return [game.gameIconUrl]
-    }
-    
-    private var currentUrl: String? {
-        guard currentUrlIndex < fallbackUrls.count else { return nil }
-        return fallbackUrls[currentUrlIndex]
-    }
-    
-    var body: some View {
-        Group {
-            if let urlString = currentUrl, let url = URL(string: urlString), !hasError {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .empty:
-                        loadingPlaceholder
-                    case .success(let image):
-                        image.resizable().aspectRatio(contentMode: .fill).frame(width: size.width, height: size.height).clipped()
-                            .onAppear {
-                                // print("✅ 🛒 市场图标加载成功!")
-                            }
-                    case .failure(let error):
-                        Color.clear.onAppear { 
-                            print("❌ 🛒 市场图标加载失败!")
-                            print("   错误: \(error.localizedDescription)")
-                            tryNextUrl() 
-                        }
-                    @unknown default:
-                        loadingPlaceholder
-                    }
-                }
-            } else {
-                finalPlaceholder
-            }
-        }
-        .frame(width: size.width, height: size.height)
-        .cornerRadius(cornerRadius)
-    }
-    
-    private var loadingPlaceholder: some View {
-        RoundedRectangle(cornerRadius: cornerRadius)
-            .fill(LinearGradient(colors: [Color.blue.opacity(0.3), Color.purple.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing))
-            .overlay(ProgressView().progressViewStyle(CircularProgressViewStyle(tint: .white)).scaleEffect(0.8))
-    }
-    
-    private var finalPlaceholder: some View {
-        RoundedRectangle(cornerRadius: cornerRadius)
-            .fill(LinearGradient(colors: [Color.blue.opacity(0.6), Color.purple.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing))
-            .overlay(Image(systemName: "gamecontroller.fill").font(.system(size: min(size.width, size.height) * 0.4)).foregroundColor(.white))
-    }
-    
-    private func tryNextUrl() {
-        if currentUrlIndex < fallbackUrls.count - 1 {
-            currentUrlIndex += 1
-        } else {
-            hasError = true
-        }
-    }
-    
-    static func small(game: Game) -> GameIconView {
-        GameIconView(game: game, width: 50, height: 50, cornerRadius: 8)
-    }
-    
-    static func medium(game: Game) -> GameIconView {
-        GameIconView(game: game, width: 80, height: 80, cornerRadius: 12)
-    }
-    
-    static func large(game: Game) -> GameIconView {
-        GameIconView(game: game, width: 100, height: 100, cornerRadius: 16)
-    }
-}
+//struct GameIconView: View {
+//    let game: Game
+//    let size: CGSize
+//    let cornerRadius: CGFloat
+//    
+//    @State private var currentUrlIndex = 0
+//    @State private var hasError = false
+//    
+//    init(game: Game, width: CGFloat, height: CGFloat, cornerRadius: CGFloat = 8) {
+//        self.game = game
+//        self.size = CGSize(width: width, height: height)
+//        self.cornerRadius = cornerRadius
+//    }
+//    
+//    private var fallbackUrls: [String] {
+//        // 使用Game模型的智能图标URL
+//        return [game.gameIconUrl]
+//    }
+//    
+//    private var currentUrl: String? {
+//        guard currentUrlIndex < fallbackUrls.count else { return nil }
+//        return fallbackUrls[currentUrlIndex]
+//    }
+//    
+//    var body: some View {
+//        Group {
+//            if let urlString = currentUrl, let url = URL(string: urlString), !hasError {
+//                AsyncImage(url: url) { phase in
+//                    switch phase {
+//                    case .empty:
+//                        loadingPlaceholder
+//                    case .success(let image):
+//                        image.resizable().aspectRatio(contentMode: .fill).frame(width: size.width, height: size.height).clipped()
+//                            .onAppear {
+//                                // print("✅ 🛒 市场图标加载成功!")
+//                            }
+//                    case .failure(let error):
+//                        Color.clear.onAppear { 
+//                            print("❌ 🛒 市场图标加载失败!")
+//                            print("   错误: \(error.localizedDescription)")
+//                            tryNextUrl() 
+//                        }
+//                    @unknown default:
+//                        loadingPlaceholder
+//                    }
+//                }
+//            } else {
+//                finalPlaceholder
+//            }
+//        }
+//        .frame(width: size.width, height: size.height)
+//        .cornerRadius(cornerRadius)
+//    }
+//    
+//    private var loadingPlaceholder: some View {
+//        RoundedRectangle(cornerRadius: cornerRadius)
+//            .fill(LinearGradient(colors: [Color.blue.opacity(0.3), Color.purple.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing))
+//            .overlay(ProgressView().progressViewStyle(CircularProgressViewStyle(tint: .white)).scaleEffect(0.8))
+//    }
+//    
+//    private var finalPlaceholder: some View {
+//        RoundedRectangle(cornerRadius: cornerRadius)
+//            .fill(LinearGradient(colors: [Color.blue.opacity(0.6), Color.purple.opacity(0.6)], startPoint: .topLeading, endPoint: .bottomTrailing))
+//            .overlay(Image(systemName: "gamecontroller.fill").font(.system(size: min(size.width, size.height) * 0.4)).foregroundColor(.white))
+//    }
+//    
+//    private func tryNextUrl() {
+//        if currentUrlIndex < fallbackUrls.count - 1 {
+//            currentUrlIndex += 1
+//        } else {
+//            hasError = true
+//        }
+//    }
+//    
+//    static func small(game: Game) -> GameIconView {
+//        GameIconView(game: game, width: 50, height: 50, cornerRadius: 8)
+//    }
+//    
+//    static func medium(game: Game) -> GameIconView {
+//        GameIconView(game: game, width: 80, height: 80, cornerRadius: 12)
+//    }
+//    
+//    static func large(game: Game) -> GameIconView {
+//        GameIconView(game: game, width: 100, height: 100, cornerRadius: 16)
+//    }
+//}
 
 struct MarketView: View {
     @StateObject private var viewModel = MarketViewModel()
@@ -207,7 +207,8 @@ struct MarketView: View {
             } else {
                 List(viewModel.filteredGames.indices, id: \.self) { index in
                     let game = viewModel.filteredGames[index]
-                    GameRowView(game: game, rank: index + 1) {
+                    let percent = viewModel.priceChangePercent(for: game)
+                    GameRowView(game: game, rank: index + 1, percent: percent) {
                         print("\n=== 📱 市场界面股票点击 ===")
                         print("🎮 点击游戏: \(game.name)")
                         print("💵 当前价格: $\(game.currentPrice)")
@@ -266,6 +267,7 @@ struct SearchBar: View {
 struct GameRowView: View {
     let game: Game
     let rank: Int
+    let percent: Double?
     let onTap: () -> Void
     
     var body: some View {
@@ -313,12 +315,12 @@ struct GameRowView: View {
                         .foregroundColor(game.priceChangeColor)
                     
                     // 涨跌幅
-                    Text("+2.34%")
+                    Text(percent != nil ? String(format: "%@%.2f%%", percent! >= 0 ? "+" : "", percent!) : "--")
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.green)
+                        .foregroundColor((percent ?? 0) >= 0 ? .green : .red)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.green.opacity(0.1))
+                        .background(((percent ?? 0) >= 0 ? Color.green : Color.red).opacity(0.1))
                         .cornerRadius(4)
                 }
             }

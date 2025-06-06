@@ -19,6 +19,9 @@
 		D957E5552DEDE6FB008A5E46 /* MarketViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D957E5542DEDE6FB008A5E46 /* MarketViewModel.swift */; };
 		D957E5572DEDE70F008A5E46 /* MarketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D957E5562DEDE70F008A5E46 /* MarketView.swift */; };
 		D957E5592DEDE722008A5E46 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = D957E5582DEDE722008A5E46 /* User.swift */; };
+		D95EDC232DF29E8600C009B0 /* GameIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D95EDC202DF29E8600C009B0 /* GameIconView.swift */; };
+		D95EDC242DF29E8600C009B0 /* ColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D95EDC1F2DF29E8600C009B0 /* ColorExtensions.swift */; };
+		D95EDC282DF2A03E00C009B0 /* PriceHistoryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D95EDC272DF2A03E00C009B0 /* PriceHistoryManager.swift */; };
 		D9680E4E2DF08B4800D5B950 /* GameDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9680E472DF08B4800D5B950 /* GameDetailView.swift */; };
 		D9680E502DF08B4800D5B950 /* PortfolioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9680E482DF08B4800D5B950 /* PortfolioView.swift */; };
 		D9680E512DF08B4800D5B950 /* TradingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9680E4A2DF08B4800D5B950 /* TradingView.swift */; };
@@ -62,6 +65,9 @@
 		D957E5542DEDE6FB008A5E46 /* MarketViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketViewModel.swift; sourceTree = "<group>"; };
 		D957E5562DEDE70F008A5E46 /* MarketView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketView.swift; sourceTree = "<group>"; };
 		D957E5582DEDE722008A5E46 /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		D95EDC1F2DF29E8600C009B0 /* ColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtensions.swift; sourceTree = "<group>"; };
+		D95EDC202DF29E8600C009B0 /* GameIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameIconView.swift; sourceTree = "<group>"; };
+		D95EDC272DF2A03E00C009B0 /* PriceHistoryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceHistoryManager.swift; sourceTree = "<group>"; };
 		D9680E472DF08B4800D5B950 /* GameDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameDetailView.swift; sourceTree = "<group>"; };
 		D9680E482DF08B4800D5B950 /* PortfolioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortfolioView.swift; sourceTree = "<group>"; };
 		D9680E4A2DF08B4800D5B950 /* TradingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TradingView.swift; sourceTree = "<group>"; };
@@ -99,15 +105,15 @@
 		D957E5142DEDAD36008A5E46 = {
 			isa = PBXGroup;
 			children = (
-				D957E54F2DEDE161008A5E46 /* Utilities */,
 				D957E54E2DEDE158008A5E46 /* Services */,
-				D957E54D2DEDE14B008A5E46 /* VIewModels */,
+				D957E54D2DEDE14B008A5E46 /* ViewModels */,
 				D957E54C2DEDE142008A5E46 /* Views */,
 				D957E54B2DEDE133008A5E46 /* Models */,
 				D957E51F2DEDAD36008A5E46 /* GameStock */,
 				D957E5312DEDAD37008A5E46 /* GameStockTests */,
 				D957E53B2DEDAD37008A5E46 /* GameStockUITests */,
 				D957E51E2DEDAD36008A5E46 /* Products */,
+				D95EDC222DF29E8600C009B0 /* Utils */,
 			);
 			sourceTree = "<group>";
 		};
@@ -178,7 +184,7 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		D957E54D2DEDE14B008A5E46 /* VIewModels */ = {
+		D957E54D2DEDE14B008A5E46 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
 				D9680E6A2DF0939800D5B950 /* GameDetailViewModel.swift */,
@@ -186,7 +192,7 @@
 				D9680E6C2DF0939800D5B950 /* TradingViewModel.swift */,
 				D957E5542DEDE6FB008A5E46 /* MarketViewModel.swift */,
 			);
-			path = VIewModels;
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		D957E54E2DEDE158008A5E46 /* Services */ = {
@@ -198,11 +204,14 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
-		D957E54F2DEDE161008A5E46 /* Utilities */ = {
+		D95EDC222DF29E8600C009B0 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				D95EDC1F2DF29E8600C009B0 /* ColorExtensions.swift */,
+				D95EDC202DF29E8600C009B0 /* GameIconView.swift */,
+				D95EDC272DF2A03E00C009B0 /* PriceHistoryManager.swift */,
 			);
-			path = Utilities;
+			path = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -339,10 +348,13 @@
 				D9680E6E2DF0939800D5B950 /* GameDetailViewModel.swift in Sources */,
 				D9680E6F2DF0939800D5B950 /* TradingViewModel.swift in Sources */,
 				D957E5532DEDE6E0008A5E46 /* NetworkManager.swift in Sources */,
+				D95EDC232DF29E8600C009B0 /* GameIconView.swift in Sources */,
+				D95EDC242DF29E8600C009B0 /* ColorExtensions.swift in Sources */,
 				D957E5552DEDE6FB008A5E46 /* MarketViewModel.swift in Sources */,
 				D9680E5D2DF08BD000D5B950 /* UserService.swift in Sources */,
 				D957E5572DEDE70F008A5E46 /* MarketView.swift in Sources */,
 				D957E5232DEDAD36008A5E46 /* ContentView.swift in Sources */,
+				D95EDC282DF2A03E00C009B0 /* PriceHistoryManager.swift in Sources */,
 				D957E5512DEDE184008A5E46 /* Game.swift in Sources */,
 				D957E5212DEDAD36008A5E46 /* GameStockApp.swift in Sources */,
 				D957E5592DEDE722008A5E46 /* User.swift in Sources */,

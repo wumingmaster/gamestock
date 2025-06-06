@@ -188,22 +188,22 @@ struct TradingView: View {
                     // 版本号显示
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("TradingView v0.0.1")
-                                .font(.caption)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.purple)
-                                .cornerRadius(8)
-                            
-                            Text("DEBUG: 游戏=\(game.name)")
-                                .font(.caption2)
-                                .foregroundColor(.purple)
-                            
-                            Text("DEBUG: 价格=$\(game.currentPrice, specifier: "%.2f")")
-                                .font(.caption2)
-                                .foregroundColor(.purple)
+//                            Text("TradingView v0.0.1")
+//                                .font(.caption)
+//                                .fontWeight(.bold)
+//                                .foregroundColor(.white)
+//                                .padding(.horizontal, 8)
+//                                .padding(.vertical, 4)
+//                                .background(Color.purple)
+//                                .cornerRadius(8)
+//                            
+//                            Text("DEBUG: 游戏=\(game.name)")
+//                                .font(.caption2)
+//                                .foregroundColor(.purple)
+//                            
+//                            Text("DEBUG: 价格=$\(game.currentPrice, specifier: "%.2f")")
+//                                .font(.caption2)
+//                                .foregroundColor(.purple)
                         }
                         Spacer()
                     }
@@ -272,12 +272,12 @@ struct TradingView: View {
             HStack {
                 // 游戏图标 - 智能加载
                 VStack {
-                    Text("图标调试 - \(game.name)")
-                        .font(.caption2)
-                        .foregroundColor(.red)
-                        .onAppear {
-                            print("🔥🔥🔥 红色调试文字出现！游戏：\(game.name)")
-                        }
+//                    Text("图标调试 - \(game.name)")
+//                        .font(.caption2)
+//                        .foregroundColor(.red)
+//                        .onAppear {
+//                            print("🔥🔥🔥 红色调试文字出现！游戏：\(game.name)")
+//                        }
                     
                     // 强制测试组件创建
                     let iconView = TradingGameIconView.medium(game: game)
