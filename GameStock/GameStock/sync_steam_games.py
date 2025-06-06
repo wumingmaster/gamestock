@@ -1,7 +1,7 @@
 import csv
 import json
 from datetime import datetime
-from GameStock.models import Game
+from Models.models import db, Game
 
 def sync_steam_games():
     # ... existing code ...

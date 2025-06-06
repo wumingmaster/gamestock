@@ -1,3 +1,4 @@
+from Models.models import db, Game
 steam_id = str(row['appid'])
 name = row['name']
 # ... 其他字段 ...
