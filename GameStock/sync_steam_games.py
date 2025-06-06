@@ -4,8 +4,6 @@ import time
 from datetime import datetime
 import os
 import json
-import gzip
-import io
 
 STEAM_APP_LIST_URL = 'https://api.steampowered.com/ISteamApps/GetAppList/v2/'
 BATCH_SIZE = 5
@@ -28,14 +26,11 @@ def fetch_steam_applist(max_retries=5):
                 stream=True
             )
             resp.raise_for_status()
-            # 自动解压 gzip 内容
-            if resp.headers.get('Content-Encoding') == 'gzip':
-                buf = io.BytesIO(resp.content)
-                with gzip.GzipFile(fileobj=buf) as gz:
-                    data = gz.read()
+            data = resp.content
+            try:
                 apps = json.loads(data)['applist']['apps']
-            else:
-                apps = resp.json()['applist']['apps']
+            except Exception:
+                apps = json.loads(data.decode('utf-8'))['applist']['apps']
             print(f"拉取成功，共{len(apps)}个游戏。")
             return apps
         except Exception as e:
