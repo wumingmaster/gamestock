@@ -50,7 +50,8 @@ def main():
                 if holding:
                     log(f"⚠️ 已有持仓: {game.name}")
                     continue
-                price = game.current_price or 0
+                # 保证价格大于0
+                price = game.current_price if game.current_price and game.current_price > 0 else 100
                 new_holding = Portfolio(
                     user_id=user.id,
                     game_id=game.id,
