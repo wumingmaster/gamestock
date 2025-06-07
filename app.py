@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, render_template, session
+from flask import Flask, jsonify, request, render_template, session, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import os
@@ -8,6 +8,12 @@ import requests
 from datetime import datetime
 import hashlib
 import secrets
+import sys
+import logging
+
+# 版本信息
+APP_VERSION = '2025-06-07-1800-PORTFOLIO-FIX'
+print(f'🚀 [app.py] 启动，版本号: {APP_VERSION}', file=sys.stderr)
 
 # 加载环境变量
 load_dotenv()
@@ -17,7 +23,18 @@ app = Flask(__name__)
 CORS(app)
 
 # 数据库配置
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gamestock.db'
+# 检测运行环境，自动选择数据库路径
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if os.path.exists('/root/GameStock/instance/gamestock.db'):
+    # 服务器环境
+    DB_PATH = 'sqlite:////root/GameStock/instance/gamestock.db'
+    print(f'🗄️ [Database] 使用服务器数据库路径: {DB_PATH}', file=sys.stderr)
+else:
+    # 本地开发环境
+    DB_PATH = 'sqlite:///gamestock.db'
+    print(f'🗄️ [Database] 使用本地数据库路径: {DB_PATH}', file=sys.stderr)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = DB_PATH
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'gamestock-secret-key'
 
@@ -27,6 +44,17 @@ db = SQLAlchemy(app)
 # Steam API配置
 STEAM_API_KEY = 'F7CA22D08BE8B62D94BA5568702B08B2'
 STEAM_API_BASE = 'https://api.steampowered.com'
+
+# 日志目录和文件配置
+LOG_DIR = os.path.join(BASE_DIR, 'logs')
+LOG_FILE = os.path.join(LOG_DIR, 'app.log')
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+logging.basicConfig(
+    filename=LOG_FILE,
+    level=logging.INFO,
+    format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
+)
 
 # 数据库模型
 class User(db.Model):
@@ -643,21 +671,26 @@ def simulate_payment_processing(amount, payment_method):
         }
 
 # 游戏相关API
-@app.route('/api/games', methods=['GET'])
-def get_games():
-    """获取所有游戏列表"""
-    # 检测客户端语言偏好
-    accept_language = request.headers.get('Accept-Language', 'en')
-    language = 'zh' if 'zh' in accept_language.lower() else 'en'
-    
-    games = Game.query.all()
-    return jsonify([game.to_dict(language) for game in games])
+# 移除原有的 /api/games 端点 - 优化版本不需要返回所有游戏
 
 @app.route('/api/games/<int:game_id>', methods=['GET'])
-def get_game(game_id):
-    """获取特定游戏信息"""
-    game = Game.query.get_or_404(game_id)
-    return jsonify(game.to_dict())
+def get_game_detail(game_id):
+    """获取单个游戏的详细信息 - 核心API"""
+    try:
+        game = Game.query.get(game_id)
+        if not game:
+            return jsonify({'error': '游戏不存在'}), 404
+        
+        accept_language = request.headers.get('Accept-Language', 'en')
+        language = 'zh' if 'zh' in accept_language.lower() else 'en'
+        
+        return jsonify({
+            'game': game.to_dict(language)
+        })
+        
+    except Exception as e:
+        print(f"Error in get_game_detail: {e}")
+        return jsonify({'error': '获取游戏信息失败'}), 500
 
 @app.route('/api/games', methods=['POST'])
 def add_game():
@@ -900,6 +933,17 @@ def refresh_all_games():
         'refresh_timestamp': datetime.utcnow().isoformat()
     })
 
+@app.route('/api/games/search', methods=['GET'])
+def search_games():
+    keyword = request.args.get('keyword', '').strip()
+    if not keyword:
+        return jsonify([])
+    # 支持中英文名模糊匹配
+    games = Game.query.filter(
+        (Game.name.ilike(f'%{keyword}%')) | (Game.name_zh.ilike(f'%{keyword}%'))
+    ).limit(50).all()
+    return jsonify([g.to_dict(language='zh') for g in games])
+
 # 交易相关API
 @app.route('/api/trading/buy', methods=['POST'])
 @login_required
@@ -1043,30 +1087,67 @@ def sell_stock():
 @app.route('/api/trading/portfolio', methods=['GET'])
 @login_required
 def get_portfolio():
-    """获取用户投资组合"""
-    user = get_current_user()
-    portfolios = Portfolio.query.filter_by(user_id=user.id).all()
-    
-    portfolio_data = [p.to_dict() for p in portfolios]
-    
-    # 计算总投资价值和盈亏
-    total_value = sum(p['total_value'] for p in portfolio_data)
-    total_cost = sum(p['avg_buy_price'] * p['shares'] for p in portfolio_data)
-    total_profit_loss = total_value - total_cost
-    total_profit_loss_percent = (total_profit_loss / total_cost * 100) if total_cost > 0 else 0
-    
-    return jsonify({
-        'portfolios': portfolio_data,
-        'summary': {
-            'total_stocks': len(portfolio_data),
-            'total_value': total_value,
-            'total_cost': total_cost,
-            'total_profit_loss': total_profit_loss,
-            'total_profit_loss_percent': total_profit_loss_percent,
-            'cash_balance': user.balance,
-            'total_assets': total_value + user.balance
+    """获取用户投资组合 - 增强错误处理版本"""
+    try:
+        user = get_current_user()
+        if not user:
+            return jsonify({
+                'success': False,
+                'error': 'User not found',
+                'message': '用户未找到'
+            }), 401
+        
+        print(f"🔍 [Portfolio API] 正在获取用户 {user.id} 的投资组合...")
+        
+        portfolios = Portfolio.query.filter_by(user_id=user.id).all()
+        print(f"📊 [Portfolio API] 找到 {len(portfolios)} 个投资组合记录")
+        
+        portfolio_data = []
+        for p in portfolios:
+            try:
+                portfolio_dict = p.to_dict()
+                portfolio_data.append(portfolio_dict)
+                print(f"✅ [Portfolio API] 成功处理投资组合 ID {p.id}: {p.game.name}")
+            except Exception as e:
+                print(f"❌ [Portfolio API] 处理投资组合 ID {p.id} 时出错: {str(e)}")
+                # 继续处理其他记录，不因为单个记录错误而中断
+                continue
+        
+        # 计算总投资价值和盈亏
+        total_value = sum(p.get('total_value', 0) for p in portfolio_data)
+        total_cost = sum(p.get('avg_buy_price', 0) * p.get('shares', 0) for p in portfolio_data)
+        total_profit_loss = total_value - total_cost
+        total_profit_loss_percent = (total_profit_loss / total_cost * 100) if total_cost > 0 else 0
+        
+        result = {
+            'success': True,
+            'portfolios': portfolio_data,
+            'summary': {
+                'total_stocks': len(portfolio_data),
+                'total_value': total_value,
+                'total_cost': total_cost,
+                'total_profit_loss': total_profit_loss,
+                'total_profit_loss_percent': total_profit_loss_percent,
+                'cash_balance': user.balance,
+                'total_assets': total_value + user.balance
+            }
         }
-    })
+        
+        print(f"✅ [Portfolio API] 成功返回投资组合数据")
+        return jsonify(result)
+        
+    except Exception as e:
+        error_msg = str(e)
+        print(f"❌ [Portfolio API] 严重错误: {error_msg}")
+        import traceback
+        traceback.print_exc()
+        
+        return jsonify({
+            'success': False,
+            'error': 'Failed to fetch portfolio',
+            'message': '获取投资组合失败',
+            'debug_info': error_msg
+        }), 500
 
 @app.route('/api/trading/transactions', methods=['GET'])
 @login_required
@@ -1121,6 +1202,31 @@ def get_user(user_id):
     """获取用户信息"""
     user = User.query.get_or_404(user_id)
     return jsonify(user.to_dict())
+
+@app.route('/api/debug/logs', methods=['GET'])
+def get_logs():
+    """获取服务器日志文件内容，仅开发环境开放"""
+    # 仅允许本地/开发环境访问
+    if not app.debug and not request.remote_addr.startswith('127.'):
+        return jsonify({'error': '仅开发环境可用'}), 403
+    log_path = LOG_FILE
+    lines = int(request.args.get('lines', 500))
+    if not os.path.exists(log_path):
+        return jsonify({'error': '日志文件不存在'}), 404
+    with open(log_path, 'r', encoding='utf-8') as f:
+        all_lines = f.readlines()
+        last_lines = all_lines[-lines:] if len(all_lines) > lines else all_lines
+        return jsonify({'lines': last_lines})
+
+@app.route('/api/debug/logfile', methods=['GET'])
+def download_logfile():
+    # 仅允许本地/开发环境访问
+    if not app.debug and not request.remote_addr.startswith('127.'):
+        return jsonify({'error': '仅开发环境可用'}), 403
+    log_path = LOG_FILE
+    if not os.path.exists(log_path):
+        return jsonify({'error': '日志文件不存在'}), 404
+    return send_file(log_path, as_attachment=True)
 
 # 初始化数据库
 def init_db():
