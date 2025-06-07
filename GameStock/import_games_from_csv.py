@@ -4,6 +4,10 @@ import stat
 import subprocess
 from models import db, Game
 
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////root/GameStock/instance/gamestock.db'
+db.init_app(app)
+
 # 强制绝对路径
 CSV_FILE = '/root/GameStock/GameStock/steam_games_backup.csv'
 PROGRESS_FILE = '/root/GameStock/GameStock/import_games_progress.txt'
