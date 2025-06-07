@@ -12,8 +12,8 @@ import sys
 import logging
 
 # 版本信息
-APP_VERSION = '2025-06-07-1846-PORTFOLIO-FIX'
-print(f'🚀 [app.py][1846] 启动，版本号: {APP_VERSION}', file=sys.stderr)
+APP_VERSION = '2025-06-07-1848-PORTFOLIO-FIX'
+print(f'🚀 [app.py][1848] 启动，版本号: {APP_VERSION}', file=sys.stderr)
 
 # 加载环境变量
 load_dotenv()
@@ -57,6 +57,13 @@ formatter = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(mess
 file_handler.setFormatter(formatter)
 logging.getLogger().addHandler(file_handler)
 logging.getLogger().setLevel(logging.INFO)
+# 强制 Flask app.logger 也写入文件
+try:
+    app.logger.handlers = []
+    app.logger.propagate = True
+    app.logger.addHandler(file_handler)
+except Exception as e:
+    pass
 
 # 数据库模型
 class User(db.Model):
@@ -500,7 +507,7 @@ def register():
 
 @app.route('/api/auth/login', methods=['POST'])
 def login():
-    """用户登录"""
+    logging.info("[1848] [Login API] 进入 login 路由")
     data = request.get_json()
     username = data.get('username')
     logging.info(f"[1846] [Login API] 登录请求: username={username}")
@@ -1105,7 +1112,7 @@ def sell_stock():
 @app.route('/api/trading/portfolio', methods=['GET'])
 @login_required
 def get_portfolio():
-    """获取用户投资组合 - 增强错误处理版本"""
+    logging.info("[1848] [Portfolio API] 进入 portfolio 路由")
     try:
         user = get_current_user()
         logging.info(f"[1846] [Portfolio API] 用户 {user.id} 请求投资组合")
