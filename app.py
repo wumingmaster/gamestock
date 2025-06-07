@@ -12,8 +12,8 @@ import sys
 import logging
 
 # 版本信息
-APP_VERSION = '2025-06-07-1807-PORTFOLIO-FIX'
-print(f'🚀 [app.py][1807] 启动，版本号: {APP_VERSION}', file=sys.stderr)
+APP_VERSION = '2025-06-07-1846-PORTFOLIO-FIX'
+print(f'🚀 [app.py][1846] 启动，版本号: {APP_VERSION}', file=sys.stderr)
 
 # 加载环境变量
 load_dotenv()
@@ -50,11 +50,13 @@ LOG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
 LOG_FILE = os.path.join(LOG_DIR, 'app.log')
 if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
-logging.basicConfig(
-    filename=LOG_FILE,
-    level=logging.INFO,
-    format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
-)
+# 强制为 root logger 添加 FileHandler，确保所有日志都写入文件
+file_handler = logging.FileHandler(LOG_FILE, encoding='utf-8')
+file_handler.setLevel(logging.INFO)
+formatter = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
+file_handler.setFormatter(formatter)
+logging.getLogger().addHandler(file_handler)
+logging.getLogger().setLevel(logging.INFO)
 
 # 数据库模型
 class User(db.Model):
@@ -501,7 +503,7 @@ def login():
     """用户登录"""
     data = request.get_json()
     username = data.get('username')
-    logging.info(f"[1807] [Login API] 登录请求: username={username}")
+    logging.info(f"[1846] [Login API] 登录请求: username={username}")
     password = data.get('password')
     
     if not username or not password:
@@ -519,7 +521,7 @@ def login():
     # 设置会话
     session['user_id'] = user.id
     
-    logging.info(f"[1807] [Login API] 登录成功: user_id={user.id}, username={user.username}")
+    logging.info(f"[1846] [Login API] 登录成功: user_id={user.id}, username={user.username}")
     return jsonify({
         'message': '登录成功',
         'user': user.to_dict()
@@ -954,7 +956,7 @@ def buy_stock():
     try:
         user = get_current_user()
         data = request.get_json()
-        logging.info(f"[1807] [Buy API] 用户 {user.id} 买入请求: {data}")
+        logging.info(f"[1846] [Buy API] 用户 {user.id} 买入请求: {data}")
         game_id = data.get('game_id')
         shares = data.get('shares')
         
@@ -1014,7 +1016,7 @@ def buy_stock():
         
         db.session.commit()
         
-        logging.info(f"[1807] [Buy API] 买入成功: {result}")
+        logging.info(f"[1846] [Buy API] 买入成功: {result}")
         return jsonify({
             'message': f'成功买入{shares}股{game.name}',
             'transaction': transaction.to_dict(),
@@ -1022,7 +1024,7 @@ def buy_stock():
             'portfolio': portfolio.to_dict()
         })
     except Exception as e:
-        logging.error(f"[1807] [Buy API] 错误: {str(e)}")
+        logging.error(f"[1846] [Buy API] 错误: {str(e)}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': '买入失败', 'message': str(e)}), 500
@@ -1034,7 +1036,7 @@ def sell_stock():
     try:
         user = get_current_user()
         data = request.get_json()
-        logging.info(f"[1807] [Sell API] 用户 {user.id} 卖出请求: {data}")
+        logging.info(f"[1846] [Sell API] 用户 {user.id} 卖出请求: {data}")
         game_id = data.get('game_id')
         shares = data.get('shares')
         
@@ -1087,7 +1089,7 @@ def sell_stock():
         
         db.session.commit()
         
-        logging.info(f"[1807] [Sell API] 卖出成功: {result}")
+        logging.info(f"[1846] [Sell API] 卖出成功: {result}")
         return jsonify({
             'message': f'成功卖出{shares}股{game.name}',
             'transaction': transaction.to_dict(),
@@ -1095,7 +1097,7 @@ def sell_stock():
             'portfolio': portfolio_result
         })
     except Exception as e:
-        logging.error(f"[1807] [Sell API] 错误: {str(e)}")
+        logging.error(f"[1846] [Sell API] 错误: {str(e)}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': '卖出失败', 'message': str(e)}), 500
@@ -1106,18 +1108,18 @@ def get_portfolio():
     """获取用户投资组合 - 增强错误处理版本"""
     try:
         user = get_current_user()
-        logging.info(f"[1807] [Portfolio API] 用户 {user.id} 请求投资组合")
+        logging.info(f"[1846] [Portfolio API] 用户 {user.id} 请求投资组合")
         portfolios = Portfolio.query.filter_by(user_id=user.id).all()
-        logging.info(f"[1807] [Portfolio API] 查到 {len(portfolios)} 条持仓")
+        logging.info(f"[1846] [Portfolio API] 查到 {len(portfolios)} 条持仓")
         
         portfolio_data = []
         for p in portfolios:
             try:
                 portfolio_dict = p.to_dict()
                 portfolio_data.append(portfolio_dict)
-                logging.info(f"[1807] [Portfolio API] 成功处理投资组合 ID {p.id}: {p.game.name}")
+                logging.info(f"[1846] [Portfolio API] 成功处理投资组合 ID {p.id}: {p.game.name}")
             except Exception as e:
-                logging.error(f"[1807] [Portfolio API] 处理投资组合 ID {p.id} 时出错: {str(e)}")
+                logging.error(f"[1846] [Portfolio API] 处理投资组合 ID {p.id} 时出错: {str(e)}")
                 # 继续处理其他记录，不因为单个记录错误而中断
                 continue
         
@@ -1141,11 +1143,11 @@ def get_portfolio():
             }
         }
         
-        logging.info(f"[1807] [Portfolio API] 返回数据: {result}")
+        logging.info(f"[1846] [Portfolio API] 返回数据: {result}")
         return jsonify(result)
         
     except Exception as e:
-        logging.error(f"[1807] [Portfolio API] 错误: {str(e)}")
+        logging.error(f"[1846] [Portfolio API] 错误: {str(e)}")
         import traceback
         traceback.print_exc()
         
@@ -1259,7 +1261,7 @@ def init_db():
 if __name__ == '__main__':
     with app.app_context():
         init_db()
-    logging.info("Flask 服务已启动，日志测试 info [1807]")
-    logging.warning("Flask 服务已启动，日志测试 warning [1807]")
-    logging.error("Flask 服务已启动，日志测试 error [1807]")
+    logging.info("Flask 服务已启动，日志测试 info [1846]")
+    logging.warning("Flask 服务已启动，日志测试 warning [1846]")
+    logging.error("Flask 服务已启动，日志测试 error [1846]")
     app.run(host='0.0.0.0', port=5001, debug=False) 
