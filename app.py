@@ -46,7 +46,7 @@ STEAM_API_KEY = 'F7CA22D08BE8B62D94BA5568702B08B2'
 STEAM_API_BASE = 'https://api.steampowered.com'
 
 # 日志目录和文件配置
-LOG_DIR = os.path.join(BASE_DIR, 'logs')
+LOG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
 LOG_FILE = os.path.join(LOG_DIR, 'app.log')
 if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
