@@ -13,7 +13,7 @@ import logging
 
 # 版本信息
 APP_VERSION = '2025-06-07-1754-PORTFOLIO-FIX'
-print(f'🚀 [app.py] 启动，版本号: {APP_VERSION}', file=sys.stderr)
+print(f'🚀 [app.py][1754] 启动，版本号: {APP_VERSION}', file=sys.stderr)
 
 # 加载环境变量
 load_dotenv()
