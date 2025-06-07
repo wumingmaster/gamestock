@@ -55,11 +55,7 @@ def main():
                     user_id=user.id,
                     game_id=game.id,
                     shares=10,
-                    avg_buy_price=price,
-                    current_price=price,
-                    total_value=price * 10,
-                    profit_loss=0,
-                    profit_loss_percent=0
+                    avg_buy_price=price
                 )
                 db.session.add(new_holding)
                 log(f"✅ 添加持仓: {game.name} (10股, 单价: {price})")
