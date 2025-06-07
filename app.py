@@ -1256,4 +1256,5 @@ def init_db():
 if __name__ == '__main__':
     with app.app_context():
         init_db()
+    logging.info("Flask 服务已启动，日志测试")
     app.run(host='0.0.0.0', port=5000, debug=False) 
