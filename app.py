@@ -12,8 +12,8 @@ import sys
 import logging
 
 # 版本信息
-APP_VERSION = '2025-06-07-1803-PORTFOLIO-FIX'
-print(f'🚀 [app.py][1803] 启动，版本号: {APP_VERSION}', file=sys.stderr)
+APP_VERSION = '2025-06-07-1805-PORTFOLIO-FIX'
+print(f'🚀 [app.py][1805] 启动，版本号: {APP_VERSION}', file=sys.stderr)
 
 # 加载环境变量
 load_dotenv()
@@ -1205,10 +1205,8 @@ def get_user(user_id):
 
 @app.route('/api/debug/logs', methods=['GET'])
 def get_logs():
-    """获取服务器日志文件内容，仅开发环境开放"""
-    # 仅允许本地/开发环境访问
-    if not app.debug and not request.remote_addr.startswith('127.'):
-        return jsonify({'error': '仅开发环境可用'}), 403
+    """获取服务器日志文件内容，开发调试临时放开限制"""
+    # 临时放开限制，允许任何IP访问
     log_path = LOG_FILE
     lines = int(request.args.get('lines', 500))
     if not os.path.exists(log_path):
@@ -1220,9 +1218,7 @@ def get_logs():
 
 @app.route('/api/debug/logfile', methods=['GET'])
 def download_logfile():
-    # 仅允许本地/开发环境访问
-    if not app.debug and not request.remote_addr.startswith('127.'):
-        return jsonify({'error': '仅开发环境可用'}), 403
+    # 临时放开限制，允许任何IP访问
     log_path = LOG_FILE
     if not os.path.exists(log_path):
         return jsonify({'error': '日志文件不存在'}), 404
@@ -1256,7 +1252,7 @@ def init_db():
 if __name__ == '__main__':
     with app.app_context():
         init_db()
-    logging.info("Flask 服务已启动，日志测试 info [1803]")
-    logging.warning("Flask 服务已启动，日志测试 warning [1803]")
-    logging.error("Flask 服务已启动，日志测试 error [1803]")
+    logging.info("Flask 服务已启动，日志测试 info [1805]")
+    logging.warning("Flask 服务已启动，日志测试 warning [1805]")
+    logging.error("Flask 服务已启动，日志测试 error [1805]")
     app.run(host='0.0.0.0', port=5001, debug=False) 
