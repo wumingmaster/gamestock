@@ -12,8 +12,8 @@ import sys
 import logging
 
 # 版本信息
-APP_VERSION = '2025-06-07-1805-PORTFOLIO-FIX'
-print(f'🚀 [app.py][1805] 启动，版本号: {APP_VERSION}', file=sys.stderr)
+APP_VERSION = '2025-06-07-1807-PORTFOLIO-FIX'
+print(f'🚀 [app.py][1807] 启动，版本号: {APP_VERSION}', file=sys.stderr)
 
 # 加载环境变量
 load_dotenv()
@@ -501,6 +501,7 @@ def login():
     """用户登录"""
     data = request.get_json()
     username = data.get('username')
+    logging.info(f"[1807] [Login API] 登录请求: username={username}")
     password = data.get('password')
     
     if not username or not password:
@@ -518,6 +519,7 @@ def login():
     # 设置会话
     session['user_id'] = user.id
     
+    logging.info(f"[1807] [Login API] 登录成功: user_id={user.id}, username={user.username}")
     return jsonify({
         'message': '登录成功',
         'user': user.to_dict()
@@ -949,140 +951,154 @@ def search_games():
 @login_required
 def buy_stock():
     """买入股票"""
-    user = get_current_user()
-    data = request.get_json()
-    
-    game_id = data.get('game_id')
-    shares = data.get('shares')
-    
-    if not game_id or not shares:
-        return jsonify({'error': '缺少必要参数'}), 400
-    
-    if shares <= 0:
-        return jsonify({'error': '股数必须大于0'}), 400
-    
-    # 获取游戏信息
-    game = Game.query.get(game_id)
-    if not game:
-        return jsonify({'error': '游戏不存在'}), 404
-    
-    current_price = game.calculated_stock_price
-    total_cost = current_price * shares
-    
-    # 检查用户余额
-    if user.balance < total_cost:
-        return jsonify({'error': f'余额不足，需要${total_cost:.2f}，当前余额${user.balance:.2f}'}), 400
-    
-    # 扣除资金
-    user.balance -= total_cost
-    
-    # 更新或创建投资组合记录
-    portfolio = Portfolio.query.filter_by(user_id=user.id, game_id=game_id).first()
-    
-    if portfolio:
-        # 计算新的平均买入价格
-        total_shares = portfolio.shares + shares
-        total_cost_old = portfolio.shares * portfolio.avg_buy_price
-        new_avg_price = (total_cost_old + total_cost) / total_shares
+    try:
+        user = get_current_user()
+        data = request.get_json()
+        logging.info(f"[1807] [Buy API] 用户 {user.id} 买入请求: {data}")
+        game_id = data.get('game_id')
+        shares = data.get('shares')
         
-        portfolio.shares = total_shares
-        portfolio.avg_buy_price = new_avg_price
-        portfolio.updated_at = datetime.utcnow()
-    else:
-        # 创建新的投资组合记录
-        portfolio = Portfolio(
+        if not game_id or not shares:
+            return jsonify({'error': '缺少必要参数'}), 400
+        
+        if shares <= 0:
+            return jsonify({'error': '股数必须大于0'}), 400
+        
+        # 获取游戏信息
+        game = Game.query.get(game_id)
+        if not game:
+            return jsonify({'error': '游戏不存在'}), 404
+        
+        current_price = game.calculated_stock_price
+        total_cost = current_price * shares
+        
+        # 检查用户余额
+        if user.balance < total_cost:
+            return jsonify({'error': f'余额不足，需要${total_cost:.2f}，当前余额${user.balance:.2f}'}), 400
+        
+        # 扣除资金
+        user.balance -= total_cost
+        
+        # 更新或创建投资组合记录
+        portfolio = Portfolio.query.filter_by(user_id=user.id, game_id=game_id).first()
+        
+        if portfolio:
+            # 计算新的平均买入价格
+            total_shares = portfolio.shares + shares
+            total_cost_old = portfolio.shares * portfolio.avg_buy_price
+            new_avg_price = (total_cost_old + total_cost) / total_shares
+            
+            portfolio.shares = total_shares
+            portfolio.avg_buy_price = new_avg_price
+            portfolio.updated_at = datetime.utcnow()
+        else:
+            # 创建新的投资组合记录
+            portfolio = Portfolio(
+                user_id=user.id,
+                game_id=game_id,
+                shares=shares,
+                avg_buy_price=current_price
+            )
+            db.session.add(portfolio)
+        
+        # 记录交易
+        transaction = Transaction(
             user_id=user.id,
             game_id=game_id,
+            transaction_type='buy',
             shares=shares,
-            avg_buy_price=current_price
+            price_per_share=current_price,
+            total_amount=total_cost
         )
-        db.session.add(portfolio)
-    
-    # 记录交易
-    transaction = Transaction(
-        user_id=user.id,
-        game_id=game_id,
-        transaction_type='buy',
-        shares=shares,
-        price_per_share=current_price,
-        total_amount=total_cost
-    )
-    db.session.add(transaction)
-    
-    db.session.commit()
-    
-    return jsonify({
-        'message': f'成功买入{shares}股{game.name}',
-        'transaction': transaction.to_dict(),
-        'user_balance': user.balance,
-        'portfolio': portfolio.to_dict()
-    })
+        db.session.add(transaction)
+        
+        db.session.commit()
+        
+        logging.info(f"[1807] [Buy API] 买入成功: {result}")
+        return jsonify({
+            'message': f'成功买入{shares}股{game.name}',
+            'transaction': transaction.to_dict(),
+            'user_balance': user.balance,
+            'portfolio': portfolio.to_dict()
+        })
+    except Exception as e:
+        logging.error(f"[1807] [Buy API] 错误: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': '买入失败', 'message': str(e)}), 500
 
 @app.route('/api/trading/sell', methods=['POST'])
 @login_required
 def sell_stock():
     """卖出股票"""
-    user = get_current_user()
-    data = request.get_json()
-    
-    game_id = data.get('game_id')
-    shares = data.get('shares')
-    
-    if not game_id or not shares:
-        return jsonify({'error': '缺少必要参数'}), 400
-    
-    if shares <= 0:
-        return jsonify({'error': '股数必须大于0'}), 400
-    
-    # 获取游戏信息
-    game = Game.query.get(game_id)
-    if not game:
-        return jsonify({'error': '游戏不存在'}), 404
-    
-    # 获取用户持股
-    portfolio = Portfolio.query.filter_by(user_id=user.id, game_id=game_id).first()
-    if not portfolio:
-        return jsonify({'error': '您没有持有该股票'}), 400
-    
-    if portfolio.shares < shares:
-        return jsonify({'error': f'持股不足，您只有{portfolio.shares}股'}), 400
-    
-    current_price = game.calculated_stock_price
-    total_revenue = current_price * shares
-    
-    # 增加资金
-    user.balance += total_revenue
-    
-    # 更新投资组合
-    portfolio.shares -= shares
-    portfolio.updated_at = datetime.utcnow()
-    
-    # 如果卖完了就删除记录
-    if portfolio.shares == 0:
-        db.session.delete(portfolio)
-        portfolio_result = None
-    else:
-        portfolio_result = portfolio.to_dict()
-    
-    # 记录交易
-    transaction = Transaction(
-        user_id=user.id,
-        game_id=game_id,
-        transaction_type='sell',
-        shares=shares,
-        price_per_share=current_price,
-        total_amount=total_revenue
-    )
-    db.session.add(transaction)
-    
-    db.session.commit()
-    
-    return jsonify({
-        'message': f'成功卖出{shares}股{game.name}',
-        'transaction': transaction.to_dict(),
-        'user_balance': user.balance,
-        'portfolio': portfolio_result
-    })
+    try:
+        user = get_current_user()
+        data = request.get_json()
+        logging.info(f"[1807] [Sell API] 用户 {user.id} 卖出请求: {data}")
+        game_id = data.get('game_id')
+        shares = data.get('shares')
+        
+        if not game_id or not shares:
+            return jsonify({'error': '缺少必要参数'}), 400
+        
+        if shares <= 0:
+            return jsonify({'error': '股数必须大于0'}), 400
+        
+        # 获取游戏信息
+        game = Game.query.get(game_id)
+        if not game:
+            return jsonify({'error': '游戏不存在'}), 404
+        
+        # 获取用户持股
+        portfolio = Portfolio.query.filter_by(user_id=user.id, game_id=game_id).first()
+        if not portfolio:
+            return jsonify({'error': '您没有持有该股票'}), 400
+        
+        if portfolio.shares < shares:
+            return jsonify({'error': f'持股不足，您只有{portfolio.shares}股'}), 400
+        
+        current_price = game.calculated_stock_price
+        total_revenue = current_price * shares
+        
+        # 增加资金
+        user.balance += total_revenue
+        
+        # 更新投资组合
+        portfolio.shares -= shares
+        portfolio.updated_at = datetime.utcnow()
+        
+        # 如果卖完了就删除记录
+        if portfolio.shares == 0:
+            db.session.delete(portfolio)
+            portfolio_result = None
+        else:
+            portfolio_result = portfolio.to_dict()
+        
+        # 记录交易
+        transaction = Transaction(
+            user_id=user.id,
+            game_id=game_id,
+            transaction_type='sell',
+            shares=shares,
+            price_per_share=current_price,
+            total_amount=total_revenue
+        )
+        db.session.add(transaction)
+        
+        db.session.commit()
+        
+        logging.info(f"[1807] [Sell API] 卖出成功: {result}")
+        return jsonify({
+            'message': f'成功卖出{shares}股{game.name}',
+            'transaction': transaction.to_dict(),
+            'user_balance': user.balance,
+            'portfolio': portfolio_result
+        })
+    except Exception as e:
+        logging.error(f"[1807] [Sell API] 错误: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': '卖出失败', 'message': str(e)}), 500
 
 @app.route('/api/trading/portfolio', methods=['GET'])
 @login_required
@@ -1090,26 +1106,18 @@ def get_portfolio():
     """获取用户投资组合 - 增强错误处理版本"""
     try:
         user = get_current_user()
-        if not user:
-            return jsonify({
-                'success': False,
-                'error': 'User not found',
-                'message': '用户未找到'
-            }), 401
-        
-        print(f"🔍 [Portfolio API] 正在获取用户 {user.id} 的投资组合...")
-        
+        logging.info(f"[1807] [Portfolio API] 用户 {user.id} 请求投资组合")
         portfolios = Portfolio.query.filter_by(user_id=user.id).all()
-        print(f"📊 [Portfolio API] 找到 {len(portfolios)} 个投资组合记录")
+        logging.info(f"[1807] [Portfolio API] 查到 {len(portfolios)} 条持仓")
         
         portfolio_data = []
         for p in portfolios:
             try:
                 portfolio_dict = p.to_dict()
                 portfolio_data.append(portfolio_dict)
-                print(f"✅ [Portfolio API] 成功处理投资组合 ID {p.id}: {p.game.name}")
+                logging.info(f"[1807] [Portfolio API] 成功处理投资组合 ID {p.id}: {p.game.name}")
             except Exception as e:
-                print(f"❌ [Portfolio API] 处理投资组合 ID {p.id} 时出错: {str(e)}")
+                logging.error(f"[1807] [Portfolio API] 处理投资组合 ID {p.id} 时出错: {str(e)}")
                 # 继续处理其他记录，不因为单个记录错误而中断
                 continue
         
@@ -1133,12 +1141,11 @@ def get_portfolio():
             }
         }
         
-        print(f"✅ [Portfolio API] 成功返回投资组合数据")
+        logging.info(f"[1807] [Portfolio API] 返回数据: {result}")
         return jsonify(result)
         
     except Exception as e:
-        error_msg = str(e)
-        print(f"❌ [Portfolio API] 严重错误: {error_msg}")
+        logging.error(f"[1807] [Portfolio API] 错误: {str(e)}")
         import traceback
         traceback.print_exc()
         
@@ -1146,7 +1153,7 @@ def get_portfolio():
             'success': False,
             'error': 'Failed to fetch portfolio',
             'message': '获取投资组合失败',
-            'debug_info': error_msg
+            'debug_info': str(e)
         }), 500
 
 @app.route('/api/trading/transactions', methods=['GET'])
@@ -1252,7 +1259,7 @@ def init_db():
 if __name__ == '__main__':
     with app.app_context():
         init_db()
-    logging.info("Flask 服务已启动，日志测试 info [1805]")
-    logging.warning("Flask 服务已启动，日志测试 warning [1805]")
-    logging.error("Flask 服务已启动，日志测试 error [1805]")
+    logging.info("Flask 服务已启动，日志测试 info [1807]")
+    logging.warning("Flask 服务已启动，日志测试 warning [1807]")
+    logging.error("Flask 服务已启动，日志测试 error [1807]")
     app.run(host='0.0.0.0', port=5001, debug=False) 
