@@ -12,8 +12,8 @@ import sys
 import logging
 
 # 版本信息
-APP_VERSION = '2025-06-07-1848-PORTFOLIO-FIX'
-print(f'🚀 [app.py][1848] 启动，版本号: {APP_VERSION}', file=sys.stderr)
+APP_VERSION = '2025-06-07-2029-PORTFOLIO-FIX'
+print(f'🚀 [app.py][2029] 启动，版本号: {APP_VERSION}', file=sys.stderr)
 
 # 加载环境变量
 load_dotenv()
@@ -179,11 +179,20 @@ class Portfolio(db.Model):
     game = db.relationship('Game', backref=db.backref('portfolios', lazy=True))
     
     def to_dict(self):
-        current_price = self.game.calculated_stock_price
+        if not self.game:
+            logging.error(f"[2029] [Portfolio.to_dict] game为None，game_id={self.game_id}, portfolio_id={self.id}")
+            return None
+        # 防止positive_reviews为None
+        positive_reviews = self.game.positive_reviews if self.game.positive_reviews is not None else 0
+        # 防止calculated_stock_price报错
+        try:
+            current_price = self.game.calculated_stock_price
+        except Exception as e:
+            logging.error(f"[2029] [Portfolio.to_dict] 计算current_price出错: {e}, game_id={self.game_id}, portfolio_id={self.id}")
+            current_price = 0
         total_value = self.shares * current_price
         profit_loss = (current_price - self.avg_buy_price) * self.shares
         profit_loss_percent = (profit_loss / (self.avg_buy_price * self.shares)) * 100 if self.avg_buy_price > 0 else 0
-        
         return {
             'id': self.id,
             'user_id': self.user_id,
