@@ -12,8 +12,8 @@ import sys
 import logging
 
 # 版本信息
-APP_VERSION = '2025-06-07-1754-PORTFOLIO-FIX'
-print(f'🚀 [app.py][1754] 启动，版本号: {APP_VERSION}', file=sys.stderr)
+APP_VERSION = '2025-06-07-1755-PORTFOLIO-FIX'
+print(f'🚀 [app.py][1755] 启动，版本号: {APP_VERSION}', file=sys.stderr)
 
 # 加载环境变量
 load_dotenv()
@@ -1259,4 +1259,4 @@ if __name__ == '__main__':
     logging.info("Flask 服务已启动，日志测试 info")
     logging.warning("Flask 服务已启动，日志测试 warning")
     logging.error("Flask 服务已启动，日志测试 error")
-    app.run(host='0.0.0.0', port=5000, debug=False) 
+    app.run(host='0.0.0.0', port=5001, debug=False) 
