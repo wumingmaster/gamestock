@@ -46,6 +46,7 @@ def main():
             # 插入前打印所有持仓
             print_all_holdings(Portfolio, user.id)
 
+            # 只从现有game表中随机挑选5个有效游戏，避免脏数据
             games = Game.query.all()
             if len(games) < 5:
                 log(f"❌ 游戏数量不足5个，当前数量: {len(games)}")
@@ -61,7 +62,7 @@ def main():
                 price = game.current_price if game.current_price and game.current_price > 0 else 100
                 new_holding = Portfolio(
                     user_id=user.id,
-                    game_id=game.id,
+                    game_id=game.id,  # 只用现有game.id，避免脏数据
                     shares=10,
                     avg_buy_price=price
                 )
