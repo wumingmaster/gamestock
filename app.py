@@ -1,3 +1,19 @@
+import os
+import subprocess
+import sys
+# 自动kill占用5001端口的进程，仅开发环境使用
+try:
+    result = subprocess.check_output("lsof -i:5001 | grep LISTEN", shell=True).decode()
+    for line in result.strip().split('\n'):
+        if not line:
+            continue
+        parts = line.split()
+        pid = int(parts[1])
+        print(f"[0608-1032] 自动kill占用端口5001的进程: PID={pid}")
+        os.kill(pid, 9)
+except Exception as e:
+    print(f"[0608-1032] 端口5001未被占用或kill失败: {e}")
+
 from flask import Flask, jsonify, request, render_template, session, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -8,12 +24,11 @@ import requests
 from datetime import datetime
 import hashlib
 import secrets
-import sys
 import logging
 
 # 版本信息
-APP_VERSION = '2025-06-07-2029-PORTFOLIO-FIX'
-print(f'🚀 [app.py][2029] 启动，版本号: {APP_VERSION}', file=sys.stderr)
+APP_VERSION = '2025-06-08-1032-PORTFOLIO-FIX'
+print(f'🚀 [app.py][0608-1032] 启动，版本号: {APP_VERSION}', file=sys.stderr)
 
 # 加载环境变量
 load_dotenv()
